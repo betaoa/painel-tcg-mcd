@@ -20,5 +20,23 @@
 3. Rode `npm run build`.
 4. Não publique dados pessoais, senhas, tokens ou exports brutos do BI.
 
-## Próxima pendência
-Conectar o Power BI correto da MCD para atualizar a série de faturamento de MCD MS.
+## Atualização, 2026-09-10
+- Feito: projeto extraído do zip e versionado arquivo a arquivo; mapa 3D refeito
+  com extrusão real e altura proporcional ao volume da cidade; `app/components/dashboard.tsx`
+  removido por não ter importador; geometria do mapa reescrita em coordenadas
+  relativas; faturamento recortado aos CNPJs que o painel exibe.
+- Dados: `power-bi-revenue.json` passou de 1.724 para 257 CNPJs. Ficam os do roteiro
+  de MS e os que dividem raiz de oito dígitos com uma rede do roteiro — o resto era
+  faturamento de outras praças que o painel nunca mostrou e o navegador baixava.
+  `totals` segue sendo o total da filial exportada e `meta.evidence` está intacta.
+  O recorte roda em `scripts/enxuga-bi.mjs`, chamado no fim de `refresh-tcg-bi.cjs`,
+  depois da reconciliação. Rode o refresh sempre a partir da exportação completa.
+- Testado: `npm run build` e `node --test tests/*.test.mjs` (18/18). KPIs, faturamento
+  mensal, custo, ranking de CNPJ e painel de redes conferidos no navegador nas duas
+  filiais e nos quatro períodos, iguais aos de antes. Mapa comparado pixel a pixel:
+  2 pixels de diferença em 2,2 milhões, de antialiasing.
+- Resultado: bundle do painel de 252 KB para 180 KB gzip.
+- Próximo passo: conectar o Power BI correto da MCD para a série de faturamento de MCD MS.
+- Bloqueio: o repositório está público e serve `app/data/power-bi-revenue.json` a
+  qualquer pessoa; o site publicado também abre sem autenticação. O recorte acima
+  reduziu o que vaza, mas o faturamento das lojas de MS continua exposto nos dois.
