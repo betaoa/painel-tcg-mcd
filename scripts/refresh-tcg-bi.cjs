@@ -37,3 +37,8 @@ payload.meta.modelUpdatedAt = '06/09/2026';
 payload.meta.evidence = evidence;
 fs.writeFileSync(target, JSON.stringify(payload, null, 2) + '\n');
 console.log(JSON.stringify({ totals: payload.totals, sourceRows: payload.meta.sourceRows }));
+
+// A reconciliação acima precisa da exportação inteira. Só depois dela o arquivo é
+// reduzido aos CNPJs que o painel consegue exibir, para não servir o faturamento
+// das outras praças a quem abre o site.
+require('node:child_process').execFileSync(process.execPath, [require('node:path').join(__dirname, 'enxuga-bi.mjs')], { stdio: 'inherit' });
