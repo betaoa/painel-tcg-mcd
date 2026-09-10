@@ -5,6 +5,16 @@ on:
     # GitHub usa UTC. 06:00 UTC = 02:00 em Cuiaba (UTC-4).
     - cron: "0 6 * * *"
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Fonte para teste manual
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - mcd
+          - tcg
 
 concurrency:
   group: daily-panel-sync
@@ -19,6 +29,7 @@ jobs:
     timeout-minutes: 90
     env:
       TZ: America/Cuiaba
+      SYNC_SCOPE: ${{ inputs.scope || 'all' }}
       SHAREPOINT_USER: ${{ secrets.SHAREPOINT_USER }}
       SHAREPOINT_PASSWORD: ${{ secrets.SHAREPOINT_PASSWORD }}
       TCG_BI_USER: ${{ secrets.TCG_BI_USER }}
