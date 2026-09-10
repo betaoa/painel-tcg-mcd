@@ -236,6 +236,7 @@ async function powerBi(browser, branch, user, password, url, routeFile) {
     if (branch === "MCD" && !process.env.MCD_BI_URL) await clickText(page, /BI MCD MS/i);
     await waitForPowerBiReport(page, branch);
     if (await page.getByText(/segurança em nível de linha|\bRLS\b/i).isVisible({ timeout: 5000 }).catch(() => false)) throw new Error(`a conta ${branch} abriu o relatório sem permissão RLS`);
+    if (process.env.PROBE_ONLY === "true") return `${branch}: relatório aberto sem exportação`;
     const exports = [];
     for (const period of previousThreeMonths()) {
       await selectSlicer(page, "Mês", period.label); await selectSlicer(page, "Ano", period.year); await selectSlicer(page, "Filial", branch);
