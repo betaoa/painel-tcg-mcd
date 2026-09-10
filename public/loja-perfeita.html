@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leitura Loja Perfeita — MS / Triunfante</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+/* Fontes hospedadas no proprio site — nao dependem do Google Fonts. */
+
+:root{
+  /* paleta tirada do material Plano Normandy / Perfect Store da Mondelez */
+  --purple-950:#2B1049; --purple-900:#3B1668; --purple-800:#4A1E80; --purple-700:#5C2D8F;
+  --purple-500:#8A55BD; --purple-300:#C9A8E2; --lilac-tint:#F4EEFA;
+  --orange-600:#D9740A; --orange-500:#F0932B; --orange-400:#F5AC5C; --orange-bg:#FDF0DF;
+  --ink:#2A1642; --ink-2:#5B4C72; --ink-3:#8779A0;
+  --paper:#FBF8FD; --card:#FFFFFF; --line:#E4D9F0; --line-soft:#EEE6F6;
+  --ok:#1E9A63; --ok-bg:#E4F5EC;
+  --wait:#C77000; --wait-bg:#FBEDD8;
+  --late:#D23B63; --late-bg:#FBE4EC;
+  --idle:#8B7C9E; --idle-bg:#EEE8F5;
+  --extra:#7A3FA6; --extra-bg:#F1E7F8;
+  --grad:linear-gradient(120deg,var(--purple-700),var(--purple-500));
+  --gradO:linear-gradient(120deg,var(--orange-600),var(--orange-500));
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --disp:"Anton","Poppins",system-ui,sans-serif;
+  --head:"Poppins",system-ui,sans-serif;
+  --body:"Inter",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--purple-700)}
+::selection{background:rgba(240,147,43,.28)}
+
+.aurora{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(760px 460px at 4% -10%, rgba(92,45,143,.10), transparent 60%),
+    radial-gradient(620px 420px at 98% -4%, rgba(240,147,43,.09), transparent 58%);}
+
+.app{position:relative;z-index:1;display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+
+/* ---------- barra lateral ---------- */
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:22px;
+  padding:22px 16px;background:var(--purple-900);color:#fff}
+.brand{display:flex;gap:11px;align-items:center;padding:2px 6px}
+.brand .mk{width:28px;height:28px;border-radius:9px;background:var(--gradO);flex-shrink:0;
+  box-shadow:0 0 0 1px rgba(255,255,255,.14),0 6px 16px rgba(240,147,43,.35)}
+.brand b{display:block;font-family:var(--disp);font-weight:400;font-size:16px;letter-spacing:.01em;color:#fff}
+.brand em{display:block;font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--purple-300);margin-top:3px}
+
+.nav{display:flex;flex-direction:column;gap:3px}
+.navitem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;cursor:pointer;
+  font-family:var(--head);font-weight:600;font-size:13px;color:#D9CBEC;background:transparent;
+  border:0;border-radius:10px;padding:9px 11px;position:relative;transition:background .16s,color .16s}
+.navitem .ico{width:16px;font-size:12px;color:var(--purple-300);transition:color .16s}
+.navitem i{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:12px;color:#fff;
+  background:rgba(255,255,255,.14);border-radius:20px;padding:1px 7px;min-width:24px;text-align:center}
+.navitem:hover{background:rgba(255,255,255,.08);color:#fff}
+.navitem.is-on{background:#fff;color:var(--purple-900)}
+.navitem.is-on .ico{color:var(--orange-500)}
+.navitem.is-on i{background:var(--orange-bg);color:var(--orange-600)}
+.navitem:focus-visible{outline:2px solid var(--orange-400);outline-offset:1px}
+
+.sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:9px}
+.publicar{display:block;text-align:center;text-decoration:none;font-family:var(--head);font-weight:700;font-size:12px;
+  letter-spacing:.02em;padding:11px;border-radius:10px;color:#fff;background:var(--gradO);
+  box-shadow:0 8px 20px rgba(217,116,10,.35)}
+.publicar:hover{filter:brightness(1.06)}
+.fonte{font-family:var(--mono);font-size:12px;line-height:1.5;color:#B9A6D4;padding:0 4px}
+
+/* ---------- area principal ---------- */
+.main{min-width:0;padding:26px 30px 70px;max-width:1440px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:18px;
+  position:relative}
+.eyebrow{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-600)}
+h1{font-family:var(--disp);font-weight:400;font-size:clamp(34px,4vw,54px);letter-spacing:.005em;margin:6px 0 0;color:var(--purple-900)}
+.sub{color:var(--ink-2);max-width:74ch;margin:9px 0 0;font-size:13.5px}
+
+.pane{display:none;animation:sobe .22s ease both}
+.pane.is-on{display:block}
+@keyframes sobe{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.aviso{margin:0 0 16px;padding:11px 14px;border-radius:11px;border:1px solid #F3C6D6;
+  background:var(--late-bg);color:#8A1F44;font-size:13px;display:none}
+.aviso.ok{border-color:#B8E6CD;background:var(--ok-bg);color:#0E6B41}
+.aviso.show{display:block}
+
+/* filtros */
+.filters{display:flex;flex-wrap:wrap;gap:9px;align-items:flex-end;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:20px;
+  box-shadow:0 1px 2px rgba(43,16,73,.04)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-family:var(--head);font-weight:600;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+select,input[type=search],input[type=text],input[type=password]{font-family:var(--body);font-size:13px;padding:8px 11px;
+  border:1px solid var(--line);background:var(--paper);border-radius:9px;color:var(--ink);min-width:152px}
+select:hover,input:hover{border-color:var(--purple-300)}
+select:focus,input:focus,button:focus-visible{outline:2px solid var(--purple-500);outline-offset:1px}
+button.btn{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.02em;padding:9px 14px;
+  border:0;background:var(--grad);color:#fff;border-radius:9px;cursor:pointer}
+button.btn.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line)}
+button.btn.ghost:hover{color:var(--purple-800);border-color:var(--purple-500)}
+button.btn:hover{filter:brightness(1.07)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px;margin:0 0 28px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 17px;position:relative;overflow:hidden;
+  box-shadow:0 1px 2px rgba(43,16,73,.04)}
+.kpi::after{content:"";position:absolute;left:16px;right:16px;top:0;height:3px;border-radius:0 0 3px 3px;background:var(--purple-700);opacity:.9}
+.kpi.bad::after{background:var(--late)} .kpi.good::after{background:var(--ok)} .kpi.extra::after{background:var(--gradO)}
+.kpi .n{font-family:var(--disp);font-weight:400;font-size:33px;letter-spacing:.01em;line-height:1;color:var(--purple-900)}
+.kpi .l{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin-top:10px}
+.kpi .d{font-size:12px;color:var(--ink-2);margin-top:4px}
+
+section{margin-bottom:32px}
+h2{font-family:var(--head);font-weight:700;font-size:16px;letter-spacing:0;margin:0 0 4px;display:flex;align-items:center;gap:9px;color:var(--purple-900)}
+h2::before{content:"";width:13px;height:13px;border-radius:4px;background:var(--gradO);display:inline-block}
+.hint{font-size:12.5px;color:var(--ink-3);margin:0 0 12px 22px;max-width:88ch}
+
+/* tabelas */
+.tablewrap{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:auto;box-shadow:0 1px 2px rgba(43,16,73,.04)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-align:left;color:#fff;
+  padding:10px 13px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--purple-800);position:sticky;top:0;z-index:2}
+th.grupo{text-align:center;background:var(--orange-500)}
+th.grupo.pe{background:var(--extra)}
+th.sep,td.sep{border-left:1px solid var(--line)}
+td{padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:middle;color:var(--ink)}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--lilac-tint)}
+.loja{font-weight:700;color:var(--purple-900)}
+.cod{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.num{font-family:var(--mono);text-align:right;color:var(--ink-2)}
+
+/* faixa de leituras — pilulas, no espirito das etiquetas do material */
+.strip{display:inline-flex;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--paper)}
+.seg{width:78px;padding:6px;text-align:center;border-right:1px solid var(--line);font-family:var(--head);font-weight:600;
+  font-size:12px;letter-spacing:.04em;text-transform:uppercase;line-height:1.3;color:var(--ink-3)}
+.seg:last-child{border-right:none}
+.seg .mark{display:block;font-size:12px;font-weight:700;margin-top:3px}
+.seg.ok{background:var(--ok-bg);color:var(--ok)}
+.seg.late{background:var(--late-bg);color:var(--late)}
+.seg.wait{background:var(--wait-bg);color:var(--wait)}
+.seg.idle{background:var(--idle-bg);color:var(--idle)}
+.seg.none{background:transparent;color:#C9BEDB}
+.seg.pe{background:var(--extra-bg);color:var(--extra)}
+.seg.pe0{background:transparent;color:#C9BEDB}
+
+.tag{display:inline-block;font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;white-space:nowrap}
+.t-ok{background:var(--ok-bg);color:var(--ok)} .t-part{background:var(--wait-bg);color:var(--wait)}
+.t-zero{background:var(--late-bg);color:var(--late)} .t-idle{background:var(--idle-bg);color:var(--idle)}
+.t-extra{background:var(--extra-bg);color:var(--extra)}
+
+.bar{position:relative;height:7px;border-radius:20px;background:var(--line-soft);border:1px solid var(--line);min-width:92px;overflow:hidden}
+.bar span{position:absolute;left:0;top:0;bottom:0;background:var(--gradO)}
+.bar.zero span{background:var(--late)}
+
+.legend{display:flex;flex-wrap:wrap;gap:15px;margin-top:13px;font-size:12px;color:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:-1px;border:1px solid rgba(43,16,73,.08)}
+.empty{padding:28px;text-align:center;color:var(--ink-3);font-size:13px}
+
+.btnfoto{margin-left:8px;font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;
+  padding:5px 10px;border:1px solid var(--purple-300);background:#fff;color:var(--purple-700);
+  border-radius:20px;cursor:pointer;white-space:nowrap;vertical-align:top}
+.btnfoto:hover{background:var(--lilac-tint);border-color:var(--purple-500)}
+.btnfoto[disabled]{border-color:var(--line);color:#C9BEDB;cursor:default;background:transparent}
+
+/* ---------- aba de fotos ---------- */
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.ficha{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .16s;
+  box-shadow:0 1px 2px rgba(43,16,73,.04)}
+.ficha:hover{border-color:var(--purple-500)}
+.fichacap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line-soft)}
+.fichacap b{font-size:13px;font-weight:700;color:var(--purple-900)}
+.fichacap span.meta{font-family:var(--mono);font-size:12px;color:var(--ink-3);width:100%}
+.fichatag{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:4px 9px;
+  border-radius:20px;background:var(--lilac-tint);color:var(--ink-3);margin-left:auto}
+.fichatag.mark{background:var(--extra-bg);color:var(--extra);margin-left:0}
+.fichatag.alerta{background:var(--late-bg);color:var(--late);margin-left:0}
+.fichagrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;padding:12px}
+.fichagrid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--line-soft);display:block;cursor:zoom-in;
+  border:1px solid var(--line);transition:transform .16s,border-color .16s}
+.fichagrid img:hover{transform:scale(1.04);border-color:var(--orange-500)}
+.vazio{grid-column:1/-1;background:var(--card);border:1px dashed var(--line);border-radius:14px;
+  padding:44px 24px;text-align:center;color:var(--ink-2);font-size:13.5px}
+
+/* ---------- aba de importar ---------- */
+.drop{border:1.5px dashed var(--line);background:var(--card);border-radius:14px;padding:22px;margin-bottom:14px;
+  display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;transition:border-color .16s,background .16s}
+.drop.over{border-color:var(--orange-500);background:var(--orange-bg)}
+.drop .txt{font-size:13px;color:var(--ink-2);max-width:62ch}
+.drop .txt b{font-family:var(--head);font-weight:700;color:var(--purple-900);font-size:14px;display:block;margin-bottom:4px}
+.passo{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--orange-600);margin-bottom:6px}
+.nota{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--purple-700);
+  border-radius:12px;padding:14px 16px;font-size:13px;color:var(--ink-2);margin-bottom:16px}
+.nota b{color:var(--purple-900)}
+
+/* modal e zoom */
+.modal{position:fixed;inset:0;background:rgba(43,16,73,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
+.modal.show{display:flex}
+.modalbox{background:var(--card);max-width:940px;width:100%;max-height:88vh;display:flex;flex-direction:column;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.modalhead{padding:16px 20px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  background:var(--purple-900)}
+.modalhead h3{font-family:var(--disp);font-weight:400;font-size:19px;margin:0 0 3px;color:#fff}
+.modalhead .meta{font-family:var(--mono);font-size:12px;color:var(--purple-300)}
+.modalclose{font-family:var(--head);font-weight:700;font-size:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;
+  padding:7px 13px;border-radius:9px;cursor:pointer;flex-shrink:0}
+.modalclose:hover{background:rgba(255,255,255,.2)}
+.modalbody{padding:16px 20px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px}
+.modalbody img{width:100%;border-radius:9px;border:1px solid var(--line);background:var(--line-soft);display:block;cursor:zoom-in}
+.modalbody .carregando{grid-column:1/-1;text-align:center;color:var(--ink-3);padding:30px;font-family:var(--mono);font-size:12px}
+.zoom{position:fixed;inset:0;background:rgba(20,8,36,.94);display:none;align-items:center;justify-content:center;z-index:60;cursor:zoom-out}
+.zoom.show{display:flex}
+.zoom img{max-width:94vw;max-height:94vh;border-radius:10px}
+
+footer{border-top:1px solid var(--line);margin-top:38px;padding-top:18px;font-size:12px;color:var(--ink-3)}
+footer h3{font-family:var(--head);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--purple-700);margin:0 0 7px}
+footer ul{margin:0 0 15px;padding-left:18px} footer li{margin-bottom:5px}
+footer strong,footer em{color:var(--ink-2)}
+
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:0;height:auto;flex-direction:row;align-items:center;gap:12px;z-index:20;
+    padding:11px 13px}
+  .brand em{display:none}
+  .nav{flex-direction:row;gap:5px}
+  .navitem{padding:8px 12px;white-space:nowrap}
+  .sidefoot{margin-top:0;margin-left:auto;flex-direction:row;align-items:center}
+  .sidefoot .fonte{display:none}
+  .publicar{padding:8px 12px;white-space:nowrap}
+  .main{padding:18px 14px 60px}
+  .seg{width:64px}
+}
+@media (max-width:560px){
+  .brand div{display:none}
+  .navitem{padding:8px 10px;font-size:13px}
+  .navitem i{display:none}
+  .publicar{font-size:12px;padding:8px 10px}
+  .galeria{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.external-scope{margin-bottom:20px;padding:12px 16px;border-radius:12px;background:#eee4f8;color:#51306e;font-size:13px}.embedded .side{position:sticky;top:0;width:100%;height:auto;min-height:0;display:flex;flex-direction:row;align-items:center;gap:20px;padding:14px 22px;z-index:20}.embedded .brand{display:none}.embedded .nav{display:flex;flex-direction:row;margin:0;gap:8px}.embedded .sidefoot{margin:0 0 0 auto;padding:0}.embedded .fonte{display:none}.embedded .main{margin-left:0;padding:28px;max-width:none}.embedded .publicar{padding:12px 18px;margin:0;white-space:nowrap}.embedded .app{display:block}.embedded .navitem{width:auto}.embedded .navitem i{margin-left:6px}.embedded .navitem .ico{display:none}@media(max-width:620px){.embedded .side{flex-wrap:wrap;padding:10px;gap:8px}.embedded .sidefoot{margin-left:0}.embedded .main{padding:18px 12px}.embedded .navitem{padding:10px;font-size:12px}.seg{width:90px}.embedded .publicar{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+<div class="app">
+
+<aside class="side">
+  <div class="brand">
+    <span class="mk"></span>
+    <div><b>Loja Perfeita</b><em>Triunfante · MS</em></div>
+  </div>
+
+  <nav class="nav" aria-label="Seções">
+    <button class="navitem is-on" data-aba="painel" type="button"><span class="ico">▦</span>Painel<i id="navLojas"></i></button>
+    <button class="navitem" data-aba="fotos" type="button"><span class="ico">◉</span>Fotos<i id="navFotos"></i></button>
+    <button class="navitem" data-aba="importar" type="button"><span class="ico">↧</span>Importar</button>
+  </nav>
+
+  <div class="sidefoot">
+    <a class="publicar" href="/enviar.html" target="_top">Publicar o dia</a>
+    <div class="fonte" id="fonte"></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div id="externalScope" class="external-scope" hidden></div>
+  <div class="topbar">
+    <div>
+      <div class="eyebrow" id="ebAba">Leitura de gôndola e ponto extra</div>
+      <h1 id="tituloAba">Quem leu, quem não leu</h1>
+      <p class="sub" id="subAba">Uma linha por loja: o espaço em gôndola por categoria, os pontos extras e o promotor responsável por cada pendência.</p>
+    </div>
+  </div>
+
+  <div class="aviso" id="aviso"></div>
+
+  <div class="pane is-on" id="pane-painel">
+<div class="filters">
+    <div class="field"><label for="fEscopo">Escopo</label>
+      <select id="fEscopo">
+        <option value="programa">As 14 lojas do programa</option>
+        <option value="tudo">Todas as lojas do arquivo</option>
+      </select></div>
+    <div class="field"><label for="fTipo">Tipo de leitura</label>
+      <select id="fTipo">
+        <option value="">As duas</option>
+        <option value="share">Só espaço em gôndola</option>
+        <option value="extra">Só ponto extra</option>
+      </select></div>
+    <div class="field"><label for="fCiclo">Ciclo</label><select id="fCiclo"></select></div>
+    <div class="field"><label for="fProm">Promotor</label><select id="fProm"></select></div>
+    <div class="field"><label for="fSit">Situação da loja</label>
+      <select id="fSit">
+        <option value="">Todas</option>
+        <option value="completa">Espaço completo</option>
+        <option value="parcial">Espaço parcial</option>
+        <option value="zero">Com categoria em aberto</option>
+        <option value="perdida">Espaço todo perdido</option>
+        <option value="pe2">Ponto extra completo</option>
+        <option value="pe1">Ponto extra incompleto</option>
+        <option value="pe0">Ponto extra zerado</option>
+        <option value="dup">Cadastro duplicado</option>
+      </select></div>
+    <div class="field"><label for="fBusca">Buscar loja</label>
+      <input type="search" id="fBusca" placeholder="nome ou código"></div>
+    <button class="btn ghost" id="btnLimpar">Voltar ao programa</button>
+    <button class="btn" id="btnExport">Baixar pendências (CSV)</button>
+  </div>
+
+    <div class="kpis" id="kpis"></div>
+
+<section>
+  <h2>Promotores</h2>
+  <p class="hint">Espaço em gôndola é tarefa atribuída: dá para cobrar o que falta. Ponto extra é reportado pelo promotor pelo celular, então a coluna conta o que foi enviado — zero ali pode ser "não fez" ou "não tinha ponto extra na loja".</p>
+  <div class="tablewrap">
+    <table id="tabProm"><thead id="thProm"></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<section>
+  <h2>Lojas</h2>
+  <p class="hint">A faixa da esquerda é o espaço em gôndola, uma casa por categoria. A da direita são os dois pontos extras esperados por loja. O relatório não informa <em>qual</em> ponto extra foi reportado — só quantos.</p>
+  <div class="tablewrap">
+    <table id="tabLojas">
+      <thead><tr>
+        <th>Loja</th><th>Promotor responsável</th><th>Espaço em gôndola</th>
+        <th class="sep">Ponto extra (precisa de 2)</th><th>Situação do espaço</th><th>Última conclusão</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--ok-bg);border-color:var(--ok)"></i>Feita — uma das duas janelas respondida</span>
+    <span><i style="background:var(--wait-bg);border-color:var(--wait)"></i>Em aberto — janela ainda não fechou</span>
+    <span><i style="background:var(--late-bg);border-color:var(--late)"></i>Perdida — as duas janelas expiraram</span>
+    <span><i style="background:var(--extra-bg);border-color:var(--extra)"></i>Ponto extra lido</span>
+    <span><i style="background:#F2F3F1"></i>Sem tarefa nesta categoria</span>
+  </div>
+</section>
+
+<footer>
+  <h3>As duas leituras não são a mesma coisa</h3>
+  <ul>
+    <li><strong>Espaço em gôndola (share)</strong> é pesquisa programada: o sistema atribui uma por categoria, por loja, por ciclo, com prazo. Falta aqui é falha de execução e vira <em>Expirada</em>.</li>
+    <li><strong>Ponto extra</strong> chega como pesquisa reportada via celular, com solicitação e conclusão no mesmo instante. Não há tarefa pendente: ou foi reportado, ou não existe registro. Por isso ele não entra no percentual de conclusão do espaço — inflaria o número, já que todo ponto extra registrado está concluído por definição.</li>
+    <li>A meta é <strong>2 pontos extras por loja: BIS e OREO</strong>. Uma única pesquisa de ponto extra pode cobrir as duas famílias, então contar pesquisas subestima. Com o PDF carregado, a faixa mostra <strong>BIS</strong> e <strong>OREO</strong> separados, lidos da marcação da ficha (do bloco “misto” quando a resposta de ponto extra misto for Sim, do bloco normal caso contrário). Sem o PDF, a faixa volta a contar pesquisas.</li>
+      <li>Loja com <strong>ficha em branco</strong>: reportou ponto extra e mandou foto, mas não marcou BIS nem OREO. Confira a foto antes de cobrar — costuma ser erro de preenchimento, não falta de execução.</li>
+    <li><strong>Qual</strong> ponto extra foi lido não sai neste relatório. Os quatro registros existentes têm o mesmo rótulo (<em>Pesquisa reportada via MOBILE</em>) e o mesmo tipo de coleta, e as colunas que poderiam diferenciar — Justificativa, Perfil do PDV, Usuário Análise — vêm vazias em todas as linhas. As casas aparecem numeradas como Extra 1 e Extra 2 por ordem de reporte, não por identidade. Para nomear cada um seria preciso o export de respostas por pergunta, não o de pesquisas.</li>
+  </ul>
+  <h3>As duas janelas do mês</h3>
+  <ul>
+    <li>Cada loja recebe, em cada categoria, <strong>duas janelas por mês</strong>: dia 01–15 e dia 16–30. Basta responder <strong>uma</strong>. Respondeu a primeira? A segunda expira e está tudo certo. Perdeu a primeira? Ainda dá para responder na segunda.</li>
+    <li>Por isso a faixa mostra o estado do <strong>par</strong>, não de cada pesquisa: <span style="color:var(--ok)">feita</span> (uma das janelas respondida), <span style="color:var(--wait)">em aberto</span> (nenhuma respondida ainda, mas uma janela segue aberta) e <span style="color:var(--late)">perdida</span> (as duas janelas expiraram sem resposta). Só a perdida é falha real.</li>
+    <li>Uma janela conta como fechada quando o status é <em>Expirada</em>. Enquanto for <em>Em Andamento</em> ou <em>Recebida no Dispositivo Móvel</em>, ainda está aberta e o par fica "em aberto".</li>
+    <li>Uma <em>Expirada</em> sozinha não é perda: se a loja respondeu a outra janela, o par está feito. O KPI "Perdidas" conta pares, não pesquisas — por isso é muito menor que o total de expiradas do arquivo.</li>
+    <li>O filtro de ciclo não se aplica ao espaço em gôndola: o par precisa das duas janelas juntas. Ele afeta só o ponto extra e a lista de lojas do escopo.</li>
+    <li>Vínculo loja↔promotor vem do campo Responsável do próprio relatório, não das planilhas de cadastro de PDV.</li>
+  </ul>
+  <h3>Nomes e carteira</h3>
+  <ul>
+    <li>Nomes de loja e de promotor são reescritos em caixa alta e baixa na hora de exibir. Acentos que faltam no relatório são recolocados por uma lista curta de palavras conhecidas — se aparecer nome novo sem acento, é só acrescentar em <span class="cod">ACENTOS</span> no código.</li>
+    <li>O campo Responsável do sistema está errado em algumas lojas. A lista <span class="cod">AJUSTES_CARTEIRA</span>, no início do script, corrige por código de PDV e vale também para os arquivos que você importar depois. Onde houve troca, a linha mostra quem consta no sistema.</li>
+    <li>O código do PDV é formado pelos 8 últimos dígitos do CNPJ. Alguns PDVs foram cadastrados sem o primeiro dígito, o que cria duas fichas para a mesma loja, com responsáveis diferentes. O dashboard detecta esses pares sozinho e marca em vermelho na linha; o filtro "Cadastro duplicado" isola todos.</li>
+    <li>Ajustes aplicados hoje: Pag Poko 54000172 e Gonçalves &amp; Gonçalves 28000135 passam para Luan; Compre Bem 72000100 passa para Laura; Santo Antônio 54000205 e 54000116 passam para Luan — são as fichas duplicadas das GT Comercial 4000205 e 4000116, que já são dele.</li>
+  </ul>
+  <h3>Colunas que o arquivo precisa ter</h3>
+  <ul>
+    <li><span class="cod">Rótulo · Tipo de Coleta · Ponto de Venda · Responsável · Status</span> são obrigatórias. <span class="cod">Perfil de acesso · Data de Conclusão · Data de Expiração · Data de Solicitação · Justificada?</span> são usadas quando existem.</li>
+    <li>Separador <span class="cod">;</span> ou <span class="cod">,</span> e acentuação são detectados sozinhos. A importação vale enquanto a página estiver aberta.</li>
+  </ul>
+</footer>
+  </div>
+
+  <div class="pane" id="pane-fotos">
+    <div class="galeria" id="galeria"></div>
+  </div>
+
+  <div class="pane" id="pane-importar">
+    <div class="nota">
+      Isto aqui é <b>prévia só neste aparelho</b> — o que você soltar abaixo some quando fechar a aba.
+      Para trocar o que todo mundo vê, use <a href="/enviar.html" target="_top">Publicar o dia</a>.
+    </div>
+
+    <div class="drop" id="drop">
+      <div class="txt">
+        <div class="passo">Relatório</div>
+        <b>Dados das leituras</b>
+        Solte aqui o relatório de pesquisas exportado do sistema, ou escolha o arquivo. Aceita .csv e .xlsx.
+        <div class="cod" style="margin-top:6px">O arquivo é lido no próprio navegador. Nada sai deste computador.</div>
+      </div>
+      <div>
+        <input type="file" id="file" accept=".csv,.txt,.xlsx,.xls" style="display:none">
+        <button class="btn" id="btnFile" type="button">Escolher arquivo</button>
+      </div>
+    </div>
+
+    <div class="drop" id="dropPdf">
+      <div class="txt">
+        <div class="passo">Fotos</div>
+        <b>Relatório de Coletas com Fotos</b>
+        Solte aqui o PDF. As fotos entram na aba Fotos e num botão ao lado de cada leitura.
+        <div class="cod" style="margin-top:6px" id="fotoStatus">Nenhum PDF de fotos carregado.</div>
+      </div>
+      <div>
+        <input type="file" id="filePdf" accept=".pdf" style="display:none">
+        <button class="btn" id="btnFilePdf" type="button">Escolher PDF</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modalbox">
+    <div class="modalhead">
+      <div><h3 id="mTitulo"></h3><div class="meta" id="mMeta"></div></div>
+      <button class="modalclose" id="mClose">Fechar</button>
+    </div>
+    <div class="modalbody" id="mBody"></div>
+  </div>
+</div>
+<div class="zoom" id="zoom"><img id="zoomImg" alt=""></div>
+
+<script src="/loja-pdv-cnpj.js"></script>
+<script>
+const DADOS_INICIAIS = [{"id": "5653541", "loja": "SOL SUPERMERCADO 48000194", "cod": "48000194", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:03", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5653542", "loja": "SOL SUPERMERCADO 48000275", "cod": "48000275", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:03", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5653543", "loja": "SUPERMERCADO COMPRE BEM 72000100", "cod": "72000100", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Respondida", "concl": "15/07/2026 12:43:42", "exp": "15/07/2026", "solic": "01/07/2026 00:30:03", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5653544", "loja": "NOVA ESTRELA 19000133", "cod": "19000133", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:03", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5653546", "loja": "SUPERMERCADO PAG POUCO 54000172", "cod": "54000172", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:03", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5655861", "loja": "SUPERMERCADO SOL 48000356", "cod": "48000356", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:07", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5659398", "loja": "COMERCIAL DE ALIMENTOS NUTRIMAIS 20000121", "cod": "20000121", "promotor": "AMANDA DE SOUZA RICARDO", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:14", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5660033", "loja": "CIDADE BRANCA COM DE ALIMENTOS EIRELI ME 44000107", "cod": "44000107", "promotor": "ANTONIO LEONARDO DE ARAUJO PESSOA", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Respondida", "concl": "15/07/2026 09:43:08", "exp": "15/07/2026", "solic": "01/07/2026 00:30:15", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666184", "loja": "SUPERMERCADO JORGE LTDA 16000170", "cod": "16000170", "promotor": "ANA JULIA RAITMAN PASSONI", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Respondida", "concl": "15/07/2026 08:41:43", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666186", "loja": "RUY RODRIGUES PANIAGO 45000160", "cod": "45000160", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666188", "loja": "BRUNETTO COM. DE ALIM LTDA 97000192", "cod": "97000192", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666189", "loja": "C A ZANELLA COM DE ALIMENTOS LTDA 25000111", "cod": "25000111", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666190", "loja": "C A ZANELLA COM DE ALIMENTOS LTDA - ME 25000200", "cod": "25000200", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666200", "loja": "MAX CENTER CENTRO DE COMPRAS LTDA 95000237", "cod": "95000237", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666201", "loja": "MAX CENTER CENTRO DE COMPRAS LTDA 95000156", "cod": "95000156", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666205", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000153", "cod": "61000153", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666206", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000234", "cod": "61000234", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666207", "loja": "PEDRO MACCARI E IRMAOS LTDA 26000187", "cod": "26000187", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666208", "loja": "SUP MAXIDEAL LJ4 91000405", "cod": "91000405", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666209", "loja": "SUPER KAN LTDA 20000744", "cod": "20000744", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666211", "loja": "SUPER KAN LTDA 20000310", "cod": "20000310", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666212", "loja": "SUPER KAN LTDA 20000400", "cod": "20000400", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666218", "loja": "SUPERMERCADO BIG MIX LTDA EPP 30000143", "cod": "30000143", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666219", "loja": "SUPERMERCADO BIG MIX LTDA ME 30000224", "cod": "30000224", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666222", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000241", "cod": "25000241", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666223", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000160", "cod": "25000160", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666224", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000403", "cod": "25000403", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666226", "loja": "MARISUL COMERCIO DE ALIMENTOS LTDA - ME 04000170", "cod": "04000170", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666229", "loja": "MERCADO E AÇOUGUE POMIER - 61000315", "cod": "61000315", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666230", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000404", "cod": "61000404", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666236", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000105", "cod": "24000105", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666237", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000288", "cod": "24000288", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666238", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000369", "cod": "24000369", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666239", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000440", "cod": "24000440", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666240", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000520", "cod": "24000520", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5666242", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000792", "cod": "24000792", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:43", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667053", "loja": "GONCALVES E GONCALVES SUPERMERCADO LTDA 28000135", "cod": "28000135", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:47", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667054", "loja": "SANTO ANTÔNIO LJ02 54000116", "cod": "54000116", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:47", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667267", "loja": "LJ-04 ABV COMERCIO DE ALIMENTOS LTDA  59000780", "cod": "59000780", "promotor": "ELLEN MARIA PESSOA DIAS", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Respondida", "concl": "01/07/2026 11:38:41", "exp": "15/07/2026", "solic": "01/07/2026 00:30:48", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667268", "loja": "SANTO ANTONIO 54000205", "cod": "54000205", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:48", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667271", "loja": "LJ-09 ABV COMERCIO DE ALIMENTOS LTDA 9001400", "cod": "9001400", "promotor": "KARINE ALVES DOS SANTOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:48", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667272", "loja": "LJ-02 ABV COMERCIO DE ALIMENTOS LTDA 9000438", "cod": "9000438", "promotor": "KARINE ALVES DOS SANTOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:48", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667322", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S A 19000214", "cod": "19000214", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:30:48", "just": "Não", "rotulo": "01 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5667582", "loja": "SOL SUPERMERCADO 48000194", "cod": "48000194", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:31:37", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5667583", "loja": "SOL SUPERMERCADO 48000275", "cod": "48000275", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:31:37", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5667584", "loja": "SUPERMERCADO COMPRE BEM 72000100", "cod": "72000100", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Respondida", "concl": "15/07/2026 12:43:50", "exp": "15/07/2026", "solic": "01/07/2026 00:31:37", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5667585", "loja": "NOVA ESTRELA 19000133", "cod": "19000133", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:31:37", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5667587", "loja": "SUPERMERCADO PAG POUCO 54000172", "cod": "54000172", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:31:37", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5669903", "loja": "SUPERMERCADO SOL 48000356", "cod": "48000356", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:31:41", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5673440", "loja": "COMERCIAL DE ALIMENTOS NUTRIMAIS 20000121", "cod": "20000121", "promotor": "AMANDA DE SOUZA RICARDO", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:31:46", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5674075", "loja": "CIDADE BRANCA COM DE ALIMENTOS EIRELI ME 44000107", "cod": "44000107", "promotor": "ANTONIO LEONARDO DE ARAUJO PESSOA", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Respondida", "concl": "15/07/2026 10:04:55", "exp": "15/07/2026", "solic": "01/07/2026 00:31:47", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680226", "loja": "SUPERMERCADO JORGE LTDA 16000170", "cod": "16000170", "promotor": "ANA JULIA RAITMAN PASSONI", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Respondida", "concl": "15/07/2026 08:46:50", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680228", "loja": "RUY RODRIGUES PANIAGO 45000160", "cod": "45000160", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680230", "loja": "BRUNETTO COM. DE ALIM LTDA 97000192", "cod": "97000192", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680231", "loja": "C A ZANELLA COM DE ALIMENTOS LTDA 25000111", "cod": "25000111", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680232", "loja": "C A ZANELLA COM DE ALIMENTOS LTDA - ME 25000200", "cod": "25000200", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680242", "loja": "MAX CENTER CENTRO DE COMPRAS LTDA 95000237", "cod": "95000237", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680243", "loja": "MAX CENTER CENTRO DE COMPRAS LTDA 95000156", "cod": "95000156", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680247", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000153", "cod": "61000153", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680248", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000234", "cod": "61000234", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680249", "loja": "PEDRO MACCARI E IRMAOS LTDA 26000187", "cod": "26000187", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680250", "loja": "SUP MAXIDEAL LJ4 91000405", "cod": "91000405", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680251", "loja": "SUPER KAN LTDA 20000744", "cod": "20000744", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680253", "loja": "SUPER KAN LTDA 20000310", "cod": "20000310", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680254", "loja": "SUPER KAN LTDA 20000400", "cod": "20000400", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680260", "loja": "SUPERMERCADO BIG MIX LTDA EPP 30000143", "cod": "30000143", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680261", "loja": "SUPERMERCADO BIG MIX LTDA ME 30000224", "cod": "30000224", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680264", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000241", "cod": "25000241", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680265", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000160", "cod": "25000160", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680266", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000403", "cod": "25000403", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680268", "loja": "MARISUL COMERCIO DE ALIMENTOS LTDA - ME 04000170", "cod": "04000170", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680271", "loja": "MERCADO E AÇOUGUE POMIER - 61000315", "cod": "61000315", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680272", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000404", "cod": "61000404", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680278", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000105", "cod": "24000105", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680279", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000288", "cod": "24000288", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680280", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000369", "cod": "24000369", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680281", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000440", "cod": "24000440", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680282", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000520", "cod": "24000520", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5680284", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000792", "cod": "24000792", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:18", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681095", "loja": "GONCALVES E GONCALVES SUPERMERCADO LTDA 28000135", "cod": "28000135", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:19", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681096", "loja": "SANTO ANTÔNIO LJ02 54000116", "cod": "54000116", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:19", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681309", "loja": "LJ-04 ABV COMERCIO DE ALIMENTOS LTDA  59000780", "cod": "59000780", "promotor": "ELLEN MARIA PESSOA DIAS", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Respondida", "concl": "01/07/2026 11:48:00", "exp": "15/07/2026", "solic": "01/07/2026 00:32:19", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681310", "loja": "SANTO ANTONIO 54000205", "cod": "54000205", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:19", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681313", "loja": "LJ-09 ABV COMERCIO DE ALIMENTOS LTDA 9001400", "cod": "9001400", "promotor": "KARINE ALVES DOS SANTOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:20", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681314", "loja": "LJ-02 ABV COMERCIO DE ALIMENTOS LTDA 9000438", "cod": "9000438", "promotor": "KARINE ALVES DOS SANTOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:20", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681364", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S A 19000214", "cod": "19000214", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:32:20", "just": "Não", "rotulo": "01 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5681624", "loja": "SOL SUPERMERCADO 48000194", "cod": "48000194", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:33:51", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5681625", "loja": "SOL SUPERMERCADO 48000275", "cod": "48000275", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:33:51", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5681626", "loja": "SUPERMERCADO COMPRE BEM 72000100", "cod": "72000100", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Respondida", "concl": "15/07/2026 12:44:18", "exp": "15/07/2026", "solic": "01/07/2026 00:33:51", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5681627", "loja": "NOVA ESTRELA 19000133", "cod": "19000133", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:33:51", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5681629", "loja": "SUPERMERCADO PAG POUCO 54000172", "cod": "54000172", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:33:51", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5683944", "loja": "SUPERMERCADO SOL 48000356", "cod": "48000356", "promotor": "EUGÊNIA VERA RIOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:33:55", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5687481", "loja": "COMERCIAL DE ALIMENTOS NUTRIMAIS 20000121", "cod": "20000121", "promotor": "AMANDA DE SOUZA RICARDO", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:00", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5688116", "loja": "CIDADE BRANCA COM DE ALIMENTOS EIRELI ME 44000107", "cod": "44000107", "promotor": "ANTONIO LEONARDO DE ARAUJO PESSOA", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Respondida", "concl": "15/07/2026 10:19:49", "exp": "15/07/2026", "solic": "01/07/2026 00:34:01", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694267", "loja": "SUPERMERCADO JORGE LTDA 16000170", "cod": "16000170", "promotor": "ANA JULIA RAITMAN PASSONI", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Respondida", "concl": "15/07/2026 08:38:18", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694269", "loja": "RUY RODRIGUES PANIAGO 45000160", "cod": "45000160", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694271", "loja": "BRUNETTO COM. DE ALIM LTDA 97000192", "cod": "97000192", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694272", "loja": "C A ZANELLA COM DE ALIMENTOS LTDA 25000111", "cod": "25000111", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694273", "loja": "C A ZANELLA COM DE ALIMENTOS LTDA - ME 25000200", "cod": "25000200", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694283", "loja": "MAX CENTER CENTRO DE COMPRAS LTDA 95000237", "cod": "95000237", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694284", "loja": "MAX CENTER CENTRO DE COMPRAS LTDA 95000156", "cod": "95000156", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694288", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000153", "cod": "61000153", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694289", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000234", "cod": "61000234", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694290", "loja": "PEDRO MACCARI E IRMAOS LTDA 26000187", "cod": "26000187", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694291", "loja": "SUP MAXIDEAL LJ4 91000405", "cod": "91000405", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694292", "loja": "SUPER KAN LTDA 20000744", "cod": "20000744", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694294", "loja": "SUPER KAN LTDA 20000310", "cod": "20000310", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694295", "loja": "SUPER KAN LTDA 20000400", "cod": "20000400", "promotor": "ANDERSON BARBORA MORAES", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694301", "loja": "SUPERMERCADO BIG MIX LTDA EPP 30000143", "cod": "30000143", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694302", "loja": "SUPERMERCADO BIG MIX LTDA ME 30000224", "cod": "30000224", "promotor": "BRUNO CESAR RAST VALLE", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694305", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000241", "cod": "25000241", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694306", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000160", "cod": "25000160", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694307", "loja": "VANCOSTY COMERCIO E DISTRIBUICAO LTDA 25000403", "cod": "25000403", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694309", "loja": "MARISUL COMERCIO DE ALIMENTOS LTDA - ME 04000170", "cod": "04000170", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694312", "loja": "MERCADO E AÇOUGUE POMIER - 61000315", "cod": "61000315", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694313", "loja": "MERCADO E AÇOUGUE POMIER LTDA 61000404", "cod": "61000404", "promotor": "TAIS OLIVEIRA", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694319", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000105", "cod": "24000105", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694320", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000288", "cod": "24000288", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694321", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000369", "cod": "24000369", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694322", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000440", "cod": "24000440", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694323", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000520", "cod": "24000520", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5694325", "loja": "KEPPLER IND E COM DE ALILMENTOS LTDA 24000792", "cod": "24000792", "promotor": "ANDRÉ LUCCAS PICOLOTTO", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:12", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5695136", "loja": "GONCALVES E GONCALVES SUPERMERCADO LTDA 28000135", "cod": "28000135", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:13", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5695137", "loja": "SANTO ANTÔNIO LJ02 54000116", "cod": "54000116", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:13", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5695350", "loja": "LJ-04 ABV COMERCIO DE ALIMENTOS LTDA  59000780", "cod": "59000780", "promotor": "ELLEN MARIA PESSOA DIAS", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Respondida", "concl": "01/07/2026 12:07:16", "exp": "15/07/2026", "solic": "01/07/2026 00:34:13", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5695351", "loja": "SANTO ANTONIO 54000205", "cod": "54000205", "promotor": "THIAGO FERREIRA LOPES DE LIMA", "perfil": "Supervisor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:13", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5695354", "loja": "LJ-09 ABV COMERCIO DE ALIMENTOS LTDA 9001400", "cod": "9001400", "promotor": "KARINE ALVES DOS SANTOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:13", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5695355", "loja": "LJ-02 ABV COMERCIO DE ALIMENTOS LTDA 9000438", "cod": "9000438", "promotor": "KARINE ALVES DOS SANTOS", "perfil": "Promotor de Merchandising", "superior": "", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:13", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5695405", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S A 19000214", "cod": "19000214", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 01", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Expirada", "concl": "", "exp": "15/07/2026", "solic": "01/07/2026 00:34:14", "just": "Não", "rotulo": "01 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5696997", "loja": "GT COMERCIAL DE ALIMENTOS LTDA 4000116", "cod": "4000116", "promotor": "Luan Kentoko Souza Kanashiro", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "", "cicloExplicito": false, "tipoLeitura": "extra", "cat": "Ponto extra", "status": "Respondida", "concl": "13/07/2026 17:15:04", "exp": "13/07/2026", "solic": "13/07/2026 17:15:04", "just": "Não", "rotulo": "Pesquisa reportada via MOBILE", "tipoColeta": "Ponto Extra - Campanha Loja Perfeita", "ehShare": false}, {"id": "5697261", "loja": "SUPERMERCADO JORGE LTDA 16000170", "cod": "16000170", "promotor": "ANA JULIA RAITMAN PASSONI", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "", "cicloExplicito": false, "tipoLeitura": "extra", "cat": "Ponto extra", "status": "Respondida", "concl": "15/07/2026 08:47:48", "exp": "15/07/2026", "solic": "15/07/2026 08:47:48", "just": "Não", "rotulo": "Pesquisa reportada via MOBILE", "tipoColeta": "Ponto Extra - Campanha Loja Perfeita", "ehShare": false}, {"id": "5703523", "loja": "COMERCIAL DE ALIMENTOS NUTRIMAIS 20000121", "cod": "20000121", "promotor": "AMANDA DE SOUZA RICARDO", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:30:17", "just": "Não", "rotulo": "15 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5704518", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S.A 9000133", "cod": "9000133", "promotor": "RAFAEL DIAS DE QUEIROZ", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:30:19", "just": "Não", "rotulo": "15 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5710299", "loja": "SUPERMERCADO JORGE LTDA 16000170", "cod": "16000170", "promotor": "ANA JULIA RAITMAN PASSONI", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:30:38", "just": "Não", "rotulo": "15 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5711379", "loja": "LJ-09 ABV COMERCIO DE ALIMENTOS LTDA 9001400", "cod": "9001400", "promotor": "Leticia dos Santos Silva", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:30:42", "just": "Não", "rotulo": "15 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5711380", "loja": "LJ-02 ABV COMERCIO DE ALIMENTOS LTDA 9000438", "cod": "9000438", "promotor": "Leticia dos Santos Silva", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:30:42", "just": "Não", "rotulo": "15 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5711429", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S A 19000214", "cod": "19000214", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Bebidas", "status": "Respondida", "concl": "16/07/2026 10:04:01", "exp": "31/07/2026", "solic": "16/07/2026 00:30:43", "just": "Não", "rotulo": "15 - Espaço em Gôndola Bebidas", "tipoColeta": "Share Bebidas (com Foto)", "ehShare": true}, {"id": "5717581", "loja": "COMERCIAL DE ALIMENTOS NUTRIMAIS 20000121", "cod": "20000121", "promotor": "AMANDA DE SOUZA RICARDO", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:31:43", "just": "Não", "rotulo": "15 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5718576", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S.A 9000133", "cod": "9000133", "promotor": "RAFAEL DIAS DE QUEIROZ", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:31:45", "just": "Não", "rotulo": "15 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5724357", "loja": "SUPERMERCADO JORGE LTDA 16000170", "cod": "16000170", "promotor": "ANA JULIA RAITMAN PASSONI", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:32:00", "just": "Não", "rotulo": "15 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5725437", "loja": "LJ-09 ABV COMERCIO DE ALIMENTOS LTDA 9001400", "cod": "9001400", "promotor": "Leticia dos Santos Silva", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:32:02", "just": "Não", "rotulo": "15 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5725438", "loja": "LJ-02 ABV COMERCIO DE ALIMENTOS LTDA 9000438", "cod": "9000438", "promotor": "Leticia dos Santos Silva", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:32:02", "just": "Não", "rotulo": "15 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5725487", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S A 19000214", "cod": "19000214", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Biscoitos", "status": "Respondida", "concl": "16/07/2026 10:08:19", "exp": "31/07/2026", "solic": "16/07/2026 00:32:02", "just": "Não", "rotulo": "15 - Espaço em Gôndola Biscoitos", "tipoColeta": "Share Biscoitos (com Foto)", "ehShare": true}, {"id": "5731638", "loja": "COMERCIAL DE ALIMENTOS NUTRIMAIS 20000121", "cod": "20000121", "promotor": "AMANDA DE SOUZA RICARDO", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:33:44", "just": "Não", "rotulo": "15 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5732633", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S.A 9000133", "cod": "9000133", "promotor": "RAFAEL DIAS DE QUEIROZ", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:33:45", "just": "Não", "rotulo": "15 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5738414", "loja": "SUPERMERCADO JORGE LTDA 16000170", "cod": "16000170", "promotor": "ANA JULIA RAITMAN PASSONI", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:33:55", "just": "Não", "rotulo": "15 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5739494", "loja": "LJ-09 ABV COMERCIO DE ALIMENTOS LTDA 9001400", "cod": "9001400", "promotor": "Leticia dos Santos Silva", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:33:57", "just": "Não", "rotulo": "15 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5739495", "loja": "LJ-02 ABV COMERCIO DE ALIMENTOS LTDA 9000438", "cod": "9000438", "promotor": "Leticia dos Santos Silva", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Em Andamento", "concl": "", "exp": "31/07/2026", "solic": "16/07/2026 00:33:57", "just": "Não", "rotulo": "15 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5739544", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S A 19000214", "cod": "19000214", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "Ciclo 15", "cicloExplicito": true, "tipoLeitura": "share", "cat": "Chocolates", "status": "Respondida", "concl": "16/07/2026 10:14:50", "exp": "31/07/2026", "solic": "16/07/2026 00:33:57", "just": "Não", "rotulo": "15 - Espaço em Gôndola Chocolates", "tipoColeta": "Share Chocolates (com Foto)", "ehShare": true}, {"id": "5739675", "loja": "NOVA ESTRELA 19000133", "cod": "19000133", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "", "cicloExplicito": false, "tipoLeitura": "extra", "cat": "Ponto extra", "status": "Respondida", "concl": "16/07/2026 10:58:46", "exp": "16/07/2026", "solic": "16/07/2026 10:58:46", "just": "Não", "rotulo": "Pesquisa reportada via MOBILE", "tipoColeta": "Ponto Extra - Campanha Loja Perfeita", "ehShare": false}, {"id": "5739787", "loja": "NOVA ESTRELA COMERCIO DE ALIMENTOS S A 19000214", "cod": "19000214", "promotor": "PATRICIA RODRIGUES BERNARDES NUNES", "perfil": "Promotor de Merchandising", "superior": "THIAGO FERREIRA LOPES DE LIMA", "ciclo": "", "cicloExplicito": false, "tipoLeitura": "extra", "cat": "Ponto extra", "status": "Respondida", "concl": "16/07/2026 16:58:18", "exp": "16/07/2026", "solic": "16/07/2026 16:58:18", "just": "Não", "rotulo": "Pesquisa reportada via MOBILE", "tipoColeta": "Ponto Extra - Campanha Loja Perfeita", "ehShare": false}];
+let DADOS = DADOS_INICIAIS.slice();
+let META = {};
+let FOTOS = {};        // chave -> [dataURL, ...]
+let pdfjsPromessa = null;
+
+/* Cada entrada de FOTOS guarda os campos da leitura + as imagens, para casar de forma tolerante.
+   FOTOS[chave] = { prom, cat, data, cod, imgs:[...] } */
+function txtChave(s){ return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/\s+/g," ").trim(); }
+function nomesCompativeis(a,b){
+  a=txtChave(a); b=txtChave(b);
+  if(!a||!b) return false;
+  if(a===b) return true;
+  // um nome é versão curta do outro (mesmos tokens iniciais)
+  const ta=a.split(" "), tb=b.split(" ");
+  const n=Math.min(ta.length,tb.length);
+  if(n<2) return false;
+  for(let i=0;i<n;i++) if(ta[i]!==tb[i]) return false;
+  return true;
+}
+/* Devolve TODAS as fichas do PDF que correspondem a esta leitura.
+   A versao anterior devolvia so a melhor, e por isso uma leitura com fotos
+   espalhadas em mais de uma ficha aparecia com uma foto so. */
+function entradasDe(r){
+  const dt=(r.concl||r.solic||"").slice(0,10);
+  const cat=txtChave(r.cat);
+  const achadas=[]; let melhorScore=-1;
+  for(const k in FOTOS){
+    const f=FOTOS[k];
+    if(txtChave(f.cat)!==cat) continue;
+    if(f.data && dt && f.data!==dt) continue;
+    const nomeOk = nomesCompativeis(f.prom,r.promotor) || nomesCompativeis(f.prom,r.promotorSistema);
+    if(!nomeOk) continue;
+    let score=1;
+    if(f.cod && r.cod){ if(f.cod===r.cod || f.cod.slice(-7)===String(r.cod).slice(-7)) score=3; else continue; }
+    if(score>melhorScore){ melhorScore=score; achadas.length=0; }
+    if(score===melhorScore) achadas.push(f);
+  }
+  return achadas;
+}
+function fotosDe(r){
+  const vistas=new Set(), out=[];
+  entradasDe(r).forEach(f=>(f.imgs||[]).forEach(u=>{ if(!vistas.has(u)){ vistas.add(u); out.push(u); } }));
+  return out;
+}
+/* Quantos pontos extras a loja de fato montou, segundo as marcacoes da ficha. */
+function familiasExtra(extras){
+  let temInfo=false, bis=false, oreo=false;
+  (extras||[]).forEach(r=>entradasDe(r).forEach(f=>{
+    if(!f.temMarcacao) return;
+    temInfo=true; bis = bis || !!f.bis; oreo = oreo || !!f.oreo;
+  }));
+  return {temInfo,bis,oreo};
+}
+
+const CLS   = {"Respondida":"ok","Em Andamento":"wait","Recebida no Dispositivo Móvel":"idle","Expirada":"late"};
+const ABREV = {"Respondida":"feita","Em Andamento":"em curso","Recebida no Dispositivo Móvel":"no celular","Expirada":"expirada"};
+const $  = s => document.querySelector(s);
+const el = (t,c,h) => { const e=document.createElement(t); if(c)e.className=c; if(h!==undefined)e.innerHTML=h; return e; };
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dataNum = s => { const m=/(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}):(\d{2}))?/.exec(s||""); return m?+(m[3]+m[2]+m[1]+(m[4]||"00")+(m[5]||"00")+(m[6]||"00")):0; };
+
+/* ---------------- padronização de nomes ---------------- */
+const MINUSCULAS=new Set(["de","da","do","das","dos","e","em","a","o","na","no","para","com"]);
+const SIGLAS={"LTDA":"Ltda","ME":"ME","EPP":"EPP","EIRELI":"Eireli","CIA":"Cia","IND":"Ind.","COM":"Com.","DIST":"Dist.","LJ":"LJ","SA":"S.A.","S.A":"S.A.","S.A.":"S.A.","ABV":"ABV"};
+const ACENTOS={"GONCALVES":"Gonçalves","ACOUGUE":"Açougue","SAO":"São","ANTONIO":"Antônio","COMERCIO":"Comércio",
+  "DISTRIBUICAO":"Distribuição","ALILMENTOS":"Alimentos","PATRICIA":"Patrícia","ANDRE":"André","TAIS":"Taís",
+  "LETICIA":"Letícia","JULIA":"Júlia","EUGENIA":"Eugênia","MARCIA":"Márcia","FATIMA":"Fátima","JOSE":"José","INACIO":"Inácio","ARAUJO":"Araújo","IRMAOS":"Irmãos","CESAR":"César","MOISES":"Moisés","LUIS":"Luís"};
+
+function padronizarNome(txt){
+  if(!txt) return "";
+  const bruto=String(txt).replace(/\s+/g," ").trim();
+  const palavras = bruto.split(" ").map((t,i)=>{
+    const partes = t.split("-").map(parte=>{
+      if(/^\d+$/.test(parte)) return parte;
+      if(/^LJ\d+$/i.test(parte)) return "LJ"+parte.replace(/\D/g,"");
+      const nu = parte.toUpperCase().replace(/[^A-ZÀ-Ú0-9.]/g,"");
+      if(ACENTOS[nu]) return ACENTOS[nu];
+      if(SIGLAS[nu]) return SIGLAS[nu];
+      const min = parte.toLowerCase();
+      if(MINUSCULAS.has(min) && i>0 && (min.length>1 || min==="e")) return min;
+      if(parte.length===1) return parte.toUpperCase();
+      if(parte.length<=4 && !/[AEIOUÀ-Ú]/i.test(parte)) return parte.toUpperCase();
+      return parte.charAt(0).toUpperCase()+parte.slice(1).toLowerCase();
+    });
+    return partes.join("-");
+  });
+  return palavras.join(" ")
+    .replace(/\bS\s+A\b\.?/g,"S.A.")
+    .replace(/\s*[-–]\s*$/,"")
+    .replace(/\s+,/g,",")
+    .trim();
+}
+
+/* ---------------- ajustes de carteira ---------------- */
+/* Corrige o campo Responsável do sistema. Chave = código do PDV.
+   Para incluir ou trocar, edite a lista abaixo. */
+/* Quantos pontos extras cada loja precisa reportar por ciclo. */
+const PONTO_EXTRA_ESPERADO = 2;
+
+/* Promotores que sairam da operacao: as leituras deles somem do painel.
+   Para tirar ou devolver alguem, edite a lista abaixo (sem acento, tudo maiusculo). */
+const PROMOTORES_FORA = ["KARINE ALVES DOS SANTOS"];
+function foraDaOperacao(nome){
+  const a=txtChave(nome);
+  return PROMOTORES_FORA.some(x=>{ const b=txtChave(x); return a===b || a.startsWith(b) || b.startsWith(a); });
+}
+function tirarExcluidos(arr){ return arr.filter(r=>!foraDaOperacao(r.promotor)); }
+
+const AJUSTES_CARTEIRA = {
+  "54000172":"Luan Kentoko Souza Kanashiro",
+  "28000135":"Luan Kentoko Souza Kanashiro",
+  "72000100":"Laura Albuquerque",
+  "54000205":"Luan Kentoko Souza Kanashiro",
+  "54000116":"Luan Kentoko Souza Kanashiro"
+};
+
+function aplicarPadrao(recs){
+  recs.forEach(r=>{
+    r.lojaSistema=r.lojaSistema||r.loja;
+    r.promotorSistema=r.promotorSistema||r.promotor;
+    r.loja=padronizarNome(r.loja);
+    const novo=AJUSTES_CARTEIRA[r.cod];
+    r.ajustado=!!novo && padronizarNome(novo)!==padronizarNome(r.promotorSistema);
+    r.promotor=padronizarNome(novo||r.promotorSistema);
+    r.promotorSistema=padronizarNome(r.promotorSistema);
+    r.perfil = r.ajustado ? "" : padronizarNome(r.perfil);
+  });
+  return recs;
+}
+
+/* ---------------- leitura de arquivo ---------------- */
+function decodificar(buffer){
+  let txt=new TextDecoder("utf-8").decode(buffer);
+  if(txt.includes("\uFFFD")) txt=new TextDecoder("windows-1252").decode(buffer);
+  return txt.replace(/^\uFEFF/,"");
+}
+function separador(linha){
+  const c={";":0,",":0,"\t":0}; let aspas=false;
+  for(const ch of linha){ if(ch==='"') aspas=!aspas; else if(!aspas && ch in c) c[ch]++; }
+  return Object.keys(c).sort((a,b)=>c[b]-c[a])[0];
+}
+function parseCSV(texto){
+  const sep=separador(texto.split(/\r?\n/,1)[0]);
+  const linhas=[]; let campo="",linha=[],aspas=false;
+  for(let i=0;i<texto.length;i++){
+    const ch=texto[i];
+    if(aspas){ if(ch==='"'){ if(texto[i+1]==='"'){campo+='"';i++;} else aspas=false; } else campo+=ch; }
+    else if(ch==='"') aspas=true;
+    else if(ch===sep){ linha.push(campo); campo=""; }
+    else if(ch==="\n"){ linha.push(campo); linhas.push(linha); linha=[]; campo=""; }
+    else if(ch!=="\r") campo+=ch;
+  }
+  if(campo!=="" || linha.length){ linha.push(campo); linhas.push(linha); }
+  if(!linhas.length) return [];
+  const head=linhas[0].map(h=>h.trim());
+  return linhas.slice(1).filter(l=>l.some(v=>String(v).trim()!==""))
+    .map(l=>Object.fromEntries(head.map((h,i)=>[h,(l[i]??"").trim()])));
+}
+function achaCol(obj,...nomes){
+  const ks=Object.keys(obj);
+  for(const n of nomes){ const k=ks.find(k=>k.toLowerCase().replace(/\s+/g," ").trim()===n.toLowerCase()); if(k) return k; }
+  for(const n of nomes){ const k=ks.find(k=>k.toLowerCase().includes(n.toLowerCase())); if(k) return k; }
+  return null;
+}
+function normalizar(brutos){
+  if(!brutos.length) throw new Error("O arquivo não tem linhas de dados.");
+  const a=brutos[0];
+  const col={
+    rotulo:achaCol(a,"Rótulo","Rotulo"), tipo:achaCol(a,"Tipo de Coleta"),
+    pdv:achaCol(a,"Ponto de Venda"), resp:achaCol(a,"Responsável","Responsavel"),
+    status:achaCol(a,"Status"), perfil:achaCol(a,"Perfil de acesso"),
+    sup:achaCol(a,"Colaborador Superior"), solic:achaCol(a,"Data de Solicitação","Data de Solicitacao"),
+    concl:achaCol(a,"Data de Conclusão","Data de Conclusao"), exp:achaCol(a,"Data de Expiração","Data de Expiracao"),
+    just:achaCol(a,"Justificada?","Justificada"), id:achaCol(a,"ID")
+  };
+  const falta=["rotulo","tipo","pdv","resp","status"].filter(k=>!col[k]);
+  if(falta.length){
+    const nomes={rotulo:"Rótulo",tipo:"Tipo de Coleta",pdv:"Ponto de Venda",resp:"Responsável",status:"Status"};
+    throw new Error("Faltam colunas obrigatórias no arquivo: "+falta.map(k=>nomes[k]).join(", ")+". Exporte o relatório de pesquisas sem renomear as colunas.");
+  }
+  const saida = brutos.map(r=>{
+    const pdv=(r[col.pdv]||"").trim(), tipo=(r[col.tipo]||"").trim(), rotulo=(r[col.rotulo]||"").trim();
+    const mShare=/share\s+([^(]+)/i.exec(tipo);
+    const ehExtra=/ponto\s*extra/i.test(tipo)||/ponto\s*extra/i.test(rotulo);
+    const mCiclo=/^\s*(\d+)/.exec(rotulo);
+    return {
+      cnpj: r[achaCol(a,"CNPJ")]||"", id: col.id?r[col.id]:"", loja:pdv, cod:(pdv.match(/(\d{5,})\s*$/)||[,""])[1],
+      promotor:(r[col.resp]||"").trim()||"— sem responsável —",
+      perfil: col.perfil?r[col.perfil]:"", superior: col.sup?r[col.sup]:"",
+      ciclo: mCiclo?"Ciclo "+mCiclo[1]:"", cicloExplicito: !!mCiclo,
+      tipoLeitura: mShare?"share":(ehExtra?"extra":"outra"),
+      cat: mShare?mShare[1].trim():(ehExtra?"Ponto extra":(tipo||"Outra coleta")),
+      status:(r[col.status]||"").trim(),
+      concl: col.concl?r[col.concl]:"", exp: col.exp?r[col.exp]:"", solic: col.solic?r[col.solic]:"",
+      just: col.just?r[col.just]:"", rotulo, tipoColeta:tipo
+    };
+  }).filter(r=>r.loja);
+  return aplicarPadrao(tirarExcluidos(saida));
+}
+
+
+/* --- encaixa registros sem ciclo (ponto extra) na janela de datas de um ciclo --- */
+function encaixarCiclos(){
+  const janela={};
+  DADOS.filter(r=>r.cicloExplicito).forEach(r=>{
+    const j=janela[r.ciclo]=janela[r.ciclo]||{ini:Infinity,fim:0};
+    const s=dataNum(r.solic), e=dataNum(r.exp);
+    if(s) j.ini=Math.min(j.ini,s);
+    if(e) j.fim=Math.max(j.fim,e+999999);
+  });
+  DADOS.filter(r=>!r.cicloExplicito).forEach(r=>{
+    const d=dataNum(r.concl)||dataNum(r.solic);
+    const achado=Object.keys(janela).find(c=>d>=janela[c].ini && d<=janela[c].fim);
+    r.ciclo = achado || "Avulsa";
+    r.encaixado = !!achado;
+  });
+}
+
+function detectarDuplicatas(){
+  const porCod={};
+  DADOS.forEach(r=>{ if(r.cod) (porCod[r.cod]=porCod[r.cod]||new Set()).add(r.loja); });
+  const par={};
+  Object.keys(porCod).forEach(a=>Object.keys(porCod).forEach(b=>{
+    if(a!==b && a.length===b.length+1 && a.slice(1)===b){
+      par[a]={cod:b,loja:[...porCod[b]][0]};
+      par[b]={cod:a,loja:[...porCod[a]][0]};
+    }
+  }));
+  DADOS.forEach(r=>{ r.duplicata = par[r.cod]||null; });
+  return par;
+}
+
+/* As 14 lojas do programa, por código de PDV (8 últimos dígitos do CNPJ).
+   As duas ABV entram com as duas grafias porque o cadastro no sistema veio
+   truncado (sem o primeiro dígito). Para incluir/remover loja, edite esta lista. */
+const LOJAS_PROGRAMA = new Set([
+  "44000107", // Cidade Branca
+  "59000780", // LJ-04 ABV
+  "54000205", // GT Comercial / Santo Antônio
+  "54000116", // GT Comercial / Santo Antônio LJ02
+  "54000172", // Mercado Pag Poko
+  "72000100", // Compre Bem (Vasconcelos)
+  "59001400","9001400", // LJ-09 ABV (grafia correta e truncada)
+  "20000121", // Nutrimais
+  "28000135", // Gonçalves e Gonçalves
+  "45000160", // Ruy Rodrigues Paniago
+  "59000438","9000438", // LJ-02 ABV (grafia correta e truncada)
+  "16000170", // Supermercado Jorge
+  "19000214", // Nova Estrela S.A.
+  "19000133"  // Nova Estrela S.A. — a ficha 9000133 é a MESMA loja duplicada
+              // no sistema (código truncado, resp. Rafael); fica de fora para
+              // não contar em dobro. Ela ainda aparece em "todas as lojas".
+]);
+function recalcularMeta(){
+  encaixarCiclos();
+  detectarDuplicatas();
+  const cats=[...new Set(DADOS.filter(r=>r.tipoLeitura==="share").map(r=>r.cat))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  const outras=[...new Set(DADOS.filter(r=>r.tipoLeitura==="outra").map(r=>r.cat))];
+  const recencia={}; DADOS.forEach(r=>{ recencia[r.ciclo]=Math.max(recencia[r.ciclo]||0,dataNum(r.solic)); });
+  const ciclos=[...new Set(DADOS.map(r=>r.ciclo))];
+  const atual=ciclos.filter(c=>c!=="Avulsa").sort((a,b)=>recencia[b]-recencia[a])[0]||null;
+  META={cats,outras,atual,ciclos:ciclos.sort((a,b)=>(recencia[b]||0)-(recencia[a]||0)),
+        lojasPrograma:new Set(DADOS.filter(r=>LOJAS_PROGRAMA.has(r.cod)).map(r=>r.loja))};
+}
+function montarFiltros(){
+  const c=$("#fCiclo"), p=$("#fProm");
+  c.innerHTML='<option value="">Todos os ciclos</option>'+META.ciclos.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+  const proms=[...new Set(DADOS.map(r=>r.promotor))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  p.innerHTML='<option value="">Todos os promotores</option>'+proms.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+  $("#thProm").innerHTML=
+    `<tr><th colspan="6"></th><th class="grupo sep" colspan="${META.cats.length}">Espaço em gôndola</th><th class="grupo pe sep">Ponto extra</th></tr>`+
+    `<tr><th>Promotor</th><th>Perfil</th><th class="num">Lojas</th><th class="num">Feitas</th><th class="num">Atribuídas</th><th>Aproveitamento</th>`+
+    META.cats.map((x,i)=>`<th${i===0?' class="sep"':''}>${esc(x)}</th>`).join("")+
+    `<th class="sep">Reportados</th></tr>`;
+}
+function atualizarFonte(nome,qtd,lojas){
+  const pe=DADOS.filter(r=>r.tipoLeitura==="extra").length;
+  const nprog=META.lojasPrograma?META.lojasPrograma.size:0;
+  $("#fonte").textContent=`${nome} · ${qtd} pesquisas (${qtd-pe} de espaço, ${pe} de ponto extra) · ${lojas} lojas no arquivo · ${nprog} do programa`;
+}
+function mostrarAviso(msg,ok){
+  const a=$("#aviso"); a.textContent=msg; a.className="aviso show"+(ok?" ok":"");
+  if(ok) setTimeout(()=>a.classList.remove("show"),6000);
+}
+
+/* ---------------- filtros e agregação ---------------- */
+function filtrar(){
+  const escopo=$("#fEscopo").value, tipo=$("#fTipo").value, c=$("#fCiclo").value,
+        p=$("#fProm").value, q=$("#fBusca").value.trim().toLowerCase();
+  return DADOS.filter(d =>
+    correspondeAoRecorte(d) &&
+    (escopo==="tudo"||META.lojasPrograma.has(d.loja)) &&
+    (!tipo || (tipo==="share"?d.tipoLeitura==="share":d.tipoLeitura==="extra")) &&
+    // O filtro de ciclo NÃO se aplica ao espaço em gôndola: as duas janelas (ciclos)
+    // formam um par e precisam ser vistas juntas. Aplica-se só a ponto extra/outras.
+    (!c || d.tipoLeitura==="share" || d.ciclo===c) &&
+    (!p||d.promotor===p) &&
+    (!q||d.loja.toLowerCase().includes(q)||(d.cod||"").includes(q))
+  );
+}
+function estadoPar(regs){
+  // regs = todas as janelas (ciclos) da mesma loja+categoria no mês
+  if(!regs || !regs.length) return {estado:"vazia", respondida:null};
+  const resp = regs.find(r=>r.status==="Respondida");
+  if(resp) return {estado:"feito", respondida:resp};
+  const aberta = regs.some(r=>r.status==="Em Andamento"||r.status==="Recebida no Dispositivo Móvel");
+  return {estado: aberta?"aberto":"perdido", respondida:null};
+}
+function agruparLojas(rows){
+  const map=new Map();
+  rows.forEach(r=>{
+    if(!map.has(r.loja)) map.set(r.loja,{loja:r.loja,cod:r.cod,proms:new Set(),promsSistema:new Set(),ajustado:false,catsJanelas:{},extras:[],outras:[],ultima:""});
+    const o=map.get(r.loja);
+    o.proms.add(r.promotor);
+    if(r.ajustado){ o.ajustado=true; o.promsSistema.add(r.promotorSistema); }
+    if(r.duplicata) o.duplicata=r.duplicata;
+    if(r.tipoLeitura==="share"){ (o.catsJanelas[r.cat]=o.catsJanelas[r.cat]||[]).push(r); }
+    else if(r.tipoLeitura==="extra") o.extras.push(r);
+    else o.outras.push(r);
+    if(r.status==="Respondida"&&dataNum(r.concl)>dataNum(o.ultima)) o.ultima=r.concl;
+  });
+  return [...map.values()].map(o=>{
+    o.cats={};        // representante por categoria: a janela respondida, ou a mais recente
+    o.parEstado={};   // estado do par por categoria
+    let feitos=0, abertos=0, perdidos=0, presentes=0;
+    META.cats.forEach(c=>{
+      const janelas=o.catsJanelas[c];
+      if(!janelas||!janelas.length) return;
+      presentes++;
+      const {estado,respondida}=estadoPar(janelas);
+      o.parEstado[c]=estado;
+      // representante para faixa e fotos: a respondida se houver, senão a de conclusão/solicitação mais recente
+      o.cats[c] = respondida || janelas.slice().sort((a,b)=>dataNum(b.concl||b.solic)-dataNum(a.concl||a.solic))[0];
+      if(estado==="feito") feitos++; else if(estado==="aberto") abertos++; else perdidos++;
+    });
+    o.total=presentes; o.feitas=feitos; o.abertos=abertos; o.perdidos=perdidos;
+    o.sit = presentes===0?"vazia" : feitos===presentes?"completa" : feitos===0?(perdidos===presentes?"perdida":"zero") : "parcial";
+    o.peLinhas=o.extras.filter(r=>r.status==="Respondida").length;
+    /* Uma pesquisa de ponto extra pode cobrir BIS e OREO ao mesmo tempo. Contar linhas
+       do relatorio subestima. Quando o PDF esta carregado, vale a marcacao da ficha. */
+    const fam=familiasExtra(o.extras);
+    o.peInfo=fam.temInfo; o.bis=fam.bis; o.oreo=fam.oreo;
+    o.pe = fam.temInfo ? (fam.bis?1:0)+(fam.oreo?1:0) : o.peLinhas;
+    o.peSemMarca = fam.temInfo && o.peLinhas>0 && o.pe===0;
+    return o;
+  });
+}
+function botaoFoto(r, titulo){
+  const fotos = r ? fotosDe(r) : [];
+  const b=el("button","btnfoto");
+  if(fotos.length){
+    b.innerHTML=`<span class="cam">▣</span> ${fotos.length}`;
+    b.title=`Ver ${fotos.length} foto(s) desta leitura`;
+    b.addEventListener("click",()=>abrirModal(titulo, r, fotos));
+  } else {
+    b.innerHTML=`<span class="cam">▣</span>`;
+    b.disabled=true;
+    b.title = Object.keys(FOTOS).length ? "Sem foto para esta leitura no PDF carregado." : "Carregue o PDF de fotos para habilitar.";
+  }
+  return b;
+}
+function faixaShare(o){
+  const wrap=el("div"); wrap.style.display="flex"; wrap.style.alignItems="stretch";
+  const f=el("div","strip");
+  const CLSP={feito:"ok",aberto:"wait",perdido:"late"};
+  const TXT={feito:"feita",aberto:"em aberto",perdido:"perdida"};
+  META.cats.forEach(c=>{
+    const est=o.parEstado[c];
+    const r=o.cats[c];
+    const seg=el("div","seg "+(est?CLSP[est]:"none"));
+    seg.innerHTML=`${esc(c)}<span class="mark">${est?TXT[est]:"—"}</span>`;
+    if(est){
+      const jan=(o.catsJanelas[c]||[]).map(x=>`${x.ciclo}: ${x.status}`).join(" · ");
+      seg.title=`${c} — ${TXT[est]}\n${jan}`+(r&&r.concl?`\nrespondida em ${r.concl}`:"");
+    }
+    f.appendChild(seg);
+  });
+  if(!META.cats.length) f.appendChild(el("div","seg none","—"));
+  wrap.appendChild(f);
+  const comFoto = META.cats.map(c=>o.cats[c]).filter(r=>r&&fotosDe(r).length);
+  if(comFoto.length){
+    const total=comFoto.reduce((s,r)=>s+fotosDe(r).length,0);
+    const b=el("button","btnfoto");
+    b.innerHTML=`<span class="cam">▣</span> ${total}`;
+    b.title=`Ver fotos do espaço (${comFoto.length} categoria(s))`;
+    b.addEventListener("click",()=>abrirModalMulti(o.loja+" · Espaço em gôndola", comFoto));
+    wrap.appendChild(b);
+  } else if(Object.keys(FOTOS).length){
+    const b=el("button","btnfoto"); b.disabled=true; b.innerHTML=`<span class="cam">▣</span>`;
+    b.title="Sem foto de espaço para esta loja no PDF."; wrap.appendChild(b);
+  }
+  return wrap;
+}
+function faixaExtra(o){
+  const wrap=el("div"); wrap.style.display="flex"; wrap.style.alignItems="stretch";
+  const f=el("div","strip");
+  const alvo=PONTO_EXTRA_ESPERADO;
+  if(o.peInfo){
+    // com o PDF carregado da para dizer QUAL ponto extra foi montado
+    [["BIS",o.bis],["OREO",o.oreo]].forEach(([nome,feito])=>{
+      const seg=el("div","seg "+(feito?"pe":"pe0"));
+      seg.innerHTML=`${nome}<span class="mark">${feito?"montado":"falta"}</span>`;
+      seg.title = feito
+        ? `${nome} marcado como presente na ficha do ponto extra.`
+        : `${nome} não foi marcado na ficha do ponto extra.`;
+      f.appendChild(seg);
+    });
+    if(o.peSemMarca){
+      const seg=el("div","seg pe0");
+      seg.innerHTML=`?<span class="mark">ficha em branco</span>`;
+      seg.title="A loja reportou ponto extra e mandou foto, mas não marcou BIS nem OREO na ficha. Vale conferir a foto antes de cobrar.";
+      f.appendChild(seg);
+    }
+  } else {
+    for(let i=0;i<alvo;i++){
+      const feito=i<o.pe, r=o.extras[i];
+      const seg=el("div","seg "+(feito?"pe":"pe0"));
+      seg.innerHTML=`Extra ${i+1}<span class="mark">${feito?"lido":"falta"}</span>`;
+      seg.title = feito
+        ? `Ponto extra reportado em ${r.concl||r.solic}. Sem o PDF não dá para saber qual ponto extra é.`
+        : "Sem registro deste ponto extra no filtro atual.";
+      f.appendChild(seg);
+    }
+    if(o.pe>alvo){
+      const seg=el("div","seg pe");
+      seg.innerHTML=`+${o.pe-alvo}<span class="mark">a mais</span>`;
+      seg.title="Reportou mais pontos extras do que o esperado.";
+      f.appendChild(seg);
+    }
+  }
+  wrap.appendChild(f);
+  const comFoto=o.extras.filter(r=>fotosDe(r).length);
+  if(comFoto.length){
+    const total=comFoto.reduce((s,r)=>s+fotosDe(r).length,0);
+    const b=el("button","btnfoto");
+    b.innerHTML=`<span class="cam">▣</span> ${total}`;
+    b.title=`Ver fotos do ponto extra`;
+    b.addEventListener("click",()=>abrirModalMulti(o.loja+" · Ponto extra", comFoto));
+    wrap.appendChild(b);
+  } else if(o.pe>0 && Object.keys(FOTOS).length){
+    const b=el("button","btnfoto"); b.disabled=true; b.innerHTML=`<span class="cam">▣</span>`;
+    b.title="Sem foto de ponto extra para esta loja no PDF."; wrap.appendChild(b);
+  }
+  return wrap;
+}
+
+/* ---------------- modal de fotos ---------------- */
+function abrirModal(titulo, r, fotos){ abrirModalMulti(titulo, r?[r]:[]); }
+function abrirModalMulti(titulo, registros){
+  $("#mTitulo").textContent = titulo.replace(/\s*\d{5,}\s*/," ").trim();
+  const partes=[];
+  registros.forEach(r=>{ const n=fotosDe(r).length; if(n) partes.push(`${r.cat}: ${n}`); });
+  $("#mMeta").textContent = partes.join(" · ");
+  const body=$("#mBody"); body.innerHTML="";
+  registros.forEach(r=>{
+    fotosDe(r).forEach((src,idx)=>{
+      const im=el("img"); im.src=src; im.alt=`${r.cat} ${idx+1}`;
+      im.addEventListener("click",()=>{ $("#zoomImg").src=src; $("#zoom").classList.add("show"); });
+      body.appendChild(im);
+    });
+  });
+  if(!body.children.length) body.innerHTML=`<div class="carregando">Sem fotos.</div>`;
+  $("#modal").classList.add("show");
+}
+function fecharModal(){ $("#modal").classList.remove("show"); }
+
+function render(){
+  const rows=filtrar(), lojas=agruparLojas(rows), sitF=$("#fSit").value;
+  const lojasF=lojas.filter(o=>{
+    if(!sitF) return true;
+    if(sitF==="pe2") return o.pe>=PONTO_EXTRA_ESPERADO;
+    if(sitF==="pe1") return o.pe>0 && o.pe<PONTO_EXTRA_ESPERADO;
+    if(sitF==="pe0") return o.pe===0;
+    if(sitF==="dup") return !!o.duplicata;
+    return o.sit===sitF;
+  });
+
+  const nb=$("#navLojas"); if(nb) nb.textContent=lojasF.length;
+
+  // KPIs agora contam PARES loja+categoria (as duas janelas juntas), não pesquisas soltas.
+  let feitos=0, abertos=0, perdidos=0, presentes=0;
+  lojas.forEach(o=>{ feitos+=o.feitas; abertos+=o.abertos; perdidos+=o.perdidos; presentes+=o.total; });
+  const pct=presentes?Math.round(feitos/presentes*100):0;
+  const peTot=rows.filter(r=>r.tipoLeitura==="extra"&&r.status==="Respondida").length;
+  const peAlvo=lojas.length*PONTO_EXTRA_ESPERADO;
+  const lojasPeOk=lojas.filter(o=>o.pe>=PONTO_EXTRA_ESPERADO).length;
+  const lojasCompletas=lojas.filter(o=>o.sit==="completa").length;
+  const semNada=lojas.filter(o=>o.sit==="perdida"&&o.pe===0).length;
+  $("#kpis").innerHTML=`
+    <div class="kpi"><div class="n">${lojas.length}</div><div class="l">Lojas no filtro</div><div class="d">${presentes} categorias avaliadas (2 janelas cada)</div></div>
+    <div class="kpi ${!presentes?"":pct>=80?"good":"bad"}"><div class="n">${presentes?pct+"%":"—"}</div><div class="l">Espaço concluído</div><div class="d">${presentes?feitos+" de "+presentes+" categorias feitas":"sem tarefa no filtro"}</div></div>
+    <div class="kpi bad"><div class="n">${perdidos}</div><div class="l">Perdidas — duas janelas</div><div class="d">as duas janelas expiraram sem resposta</div></div>
+    <div class="kpi"><div class="n">${abertos}</div><div class="l">Em aberto</div><div class="d">janela ainda aberta, dá para cobrar</div></div>
+    <div class="kpi extra"><div class="n">${peTot}/${peAlvo}</div><div class="l">Ponto extra reportados</div><div class="d">${lojasPeOk} de ${lojas.length} lojas com os ${PONTO_EXTRA_ESPERADO} completos</div></div>
+    <div class="kpi bad"><div class="n">${semNada}</div><div class="l">Lojas totalmente perdidas</div><div class="d">nenhuma categoria feita, sem ponto extra</div></div>`;
+
+  // Promotores: contagem por PAR (categoria), derivada das lojas já agrupadas.
+  const pm=new Map();
+  function pmGet(nome,perfil){
+    if(!pm.has(nome)) pm.set(nome,{nome,perfil:perfil||"",lojas:new Set(),tot:0,ok:0,cat:{},pe:0});
+    const o=pm.get(nome); if(!o.perfil&&perfil) o.perfil=perfil; return o;
+  }
+  lojas.forEach(L=>{
+    // responsável do share desta loja (após ajuste de carteira): usa o representante de qualquer categoria
+    let resp=null, perfil="";
+    for(const c of META.cats){ if(L.cats[c]){ resp=L.cats[c].promotor; perfil=L.cats[c].perfil||perfil; break; } }
+    if(resp===null) resp=[...L.proms][0];
+    const o=pmGet(resp,perfil);
+    o.lojas.add(L.loja);
+    META.cats.forEach(c=>{
+      const est=L.parEstado[c]; if(!est) return;
+      o.tot++; if(est==="feito") o.ok++;
+      o.cat[c]=o.cat[c]||{t:0,o:0}; o.cat[c].t++; if(est==="feito") o.cat[c].o++;
+    });
+    o.pe += L.pe;
+  });
+  const tbP=$("#tabProm tbody"); tbP.innerHTML="";
+  [...pm.values()].sort((a,b)=>(a.tot?a.ok/a.tot:2)-(b.tot?b.ok/b.tot:2)||b.tot-a.tot).forEach(o=>{
+    const pc=o.tot?Math.round(o.ok/o.tot*100):null;
+    const tr=el("tr");
+    tr.innerHTML=`<td class="loja">${esc(o.nome)}</td><td style="font-size:12px;color:#6B756F">${o.perfil?esc(o.perfil):'<span class="cod" style="color:#A3ACA6">não consta</span>'}</td>
+      <td class="num">${o.lojas.size}</td><td class="num">${o.tot?o.ok:"—"}</td><td class="num">${o.tot||"—"}</td>
+      <td>${pc===null?'<span class="cod">sem tarefa de espaço</span>':
+        `<div style="display:flex;align-items:center;gap:8px"><div class="bar ${pc===0?"zero":""}"><span style="width:${pc}%"></span></div><span class="num" style="min-width:38px">${pc}%</span></div>`}</td>`
+      + META.cats.map((c,i)=>{
+          const d=o.cat[c], sep=i===0?" sep":"";
+          if(!d) return `<td class="num${sep}" style="color:#A3ACA6">—</td>`;
+          const cls=d.o===d.t?"t-ok":d.o===0?"t-zero":"t-part";
+          return `<td class="${sep.trim()}"><span class="tag ${cls}">${d.o}/${d.t}</span></td>`;
+        }).join("")
+      + `<td class="sep">${(()=>{const alvo=o.lojas.size*PONTO_EXTRA_ESPERADO;
+            const cls=o.pe>=alvo?"t-ok":o.pe?"t-part":"t-zero";
+            return `<span class="tag ${cls}">${o.pe}/${alvo}</span>`;})()}</td>`;
+    tbP.appendChild(tr);
+  });
+  if(!pm.size) tbP.innerHTML=`<tr><td colspan="${7+META.cats.length}" class="empty">Nenhum registro para este filtro.</td></tr>`;
+
+  const tbL=$("#tabLojas tbody"); tbL.innerHTML="";
+  const ordem={perdida:0,zero:1,parcial:2,completa:3,vazia:4};
+  lojasF.sort((a,b)=>ordem[a.sit]-ordem[b.sit]||a.pe-b.pe||a.loja.localeCompare(b.loja,"pt-BR")).forEach(o=>{
+    const tr=el("tr");
+    const nome=o.loja.replace(/\s*\d{5,}\s*$/,"").replace(/\s*[-–,]\s*$/,"").trim()||o.loja;
+    const tds=el("td");
+    tds.innerHTML=`<div class="loja">${esc(nome)}</div><div class="cod">${esc(o.cod||"sem código")}</div>`
+      + (o.duplicata?`<div class="cod" style="color:var(--late)" title="Os dois códigos são o mesmo CNPJ: um deles foi cadastrado sem o primeiro dígito.">cadastro duplicado — ver ${esc(padronizarNome(o.duplicata.loja).replace(/\s*\d{5,}\s*$/,""))} ${esc(o.duplicata.cod)}</div>`:"");
+    const tdp=el("td");
+    tdp.innerHTML=[...o.proms].map(esc).join("<br>")
+      + (o.proms.size>1?`<div class="cod">responsável mudou entre ciclos</div>`:"")
+      + (o.ajustado?`<div class="cod" title="Responsável trocado pela lista de ajustes de carteira">ajustado — no sistema: ${esc([...o.promsSistema].join(", "))}</div>`:"");
+    const tdf=el("td"); tdf.appendChild(faixaShare(o));
+    const tde=el("td","sep"); tde.appendChild(faixaExtra(o));
+    const rot={completa:["t-ok","completo"],parcial:["t-part",`parcial ${o.feitas}/${o.total}`],zero:["t-part",`aberto ${o.feitas}/${o.total}`],perdida:["t-zero","perdida"],vazia:["t-idle","sem tarefa"]}[o.sit];
+    const tdt=el("td",null,`<span class="tag ${rot[0]}">${rot[1]}</span>`);
+    const tdu=el("td",null,o.ultima?`<span class="cod">${esc(o.ultima)}</span>`:`<span class="cod" style="color:#A3ACA6">—</span>`);
+    [tds,tdp,tdf,tde,tdt,tdu].forEach(x=>tr.appendChild(x));
+    tbL.appendChild(tr);
+  });
+  if(!lojasF.length) tbL.innerHTML=`<tr><td colspan="6" class="empty">Nenhuma loja para este filtro.</td></tr>`;
+}
+
+/* ---------------- importação ---------------- */
+async function lerXLSX(arquivo){
+  if(!window.XLSX){
+    await new Promise((ok,err)=>{
+      const s=document.createElement("script");
+      s.src="/xlsx.full.min.js";
+      s.onload=ok; s.onerror=()=>err(new Error("Sem internet para abrir .xlsx. Exporte o relatório em .csv e importe de novo."));
+      document.head.appendChild(s);
+    });
+  }
+  const wb=XLSX.read(await arquivo.arrayBuffer(),{type:"array"});
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:"",raw:false});
+}
+async function importar(arquivo){
+  try{
+    const brutos = /\.xlsx?$/i.test(arquivo.name) ? await lerXLSX(arquivo) : parseCSV(decodificar(await arquivo.arrayBuffer()));
+    const novos=normalizar(brutos);
+    if(!novos.length) throw new Error("Nenhuma pesquisa válida encontrada no arquivo.");
+    DADOS=novos;
+    recalcularMeta(); montarFiltros();
+    $("#fEscopo").value="programa"; $("#fTipo").value=""; $("#fSit").value=""; $("#fBusca").value="";
+    render();
+    const nl=new Set(DADOS.map(r=>r.loja)).size, pe=DADOS.filter(r=>r.tipoLeitura==="extra").length;
+    atualizarFonte(arquivo.name,DADOS.length,nl);
+    mostrarAviso(`Dados atualizados: ${DADOS.length} pesquisas em ${nl} lojas, sendo ${pe} de ponto extra.`,true);
+  }catch(e){ mostrarAviso(e.message||"Não foi possível ler o arquivo."); }
+}
+
+/* ---------------- importação do PDF de fotos ---------------- */
+function carregarPdfJs(){
+  if(window.pdfjsLib) return Promise.resolve();
+  if(pdfjsPromessa) return pdfjsPromessa;
+  pdfjsPromessa = new Promise((ok,err)=>{
+    const s=document.createElement("script");
+    s.src="/vendor/pdf.min.js";
+    s.onload=()=>{ try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc="/vendor/pdf.worker.min.js"; ok(); }catch(e){ err(e); } };
+    s.onerror=()=>err(new Error("Sem internet para abrir o PDF. Conecte-se e tente de novo."));
+    document.head.appendChild(s);
+  });
+  return pdfjsPromessa;
+}
+function semAcento(s){ return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/\s+/g," ").trim(); }
+function catDoTipo(t){
+  const m=/share\s+(\w+)/i.exec(t); if(m) return semAcento(m[1]);
+  if(/ponto\s*extra/i.test(t)) return "PONTO EXTRA";
+  return semAcento(t);
+}
+async function imagemParaDataURL(img){
+  // img: {data, width, height, kind} do pdf.js  (kind 1=grayscale,2=RGB? na prática usamos bitmap)
+  const c=document.createElement("canvas"); c.width=img.width; c.height=img.height;
+  const ctx=c.getContext("2d");
+  if(img.bitmap){ ctx.drawImage(img.bitmap,0,0); }
+  else{
+    const id=ctx.createImageData(img.width,img.height);
+    const src=img.data, dst=id.data, n=img.width*img.height;
+    if(src.length===n*3){ for(let i=0;i<n;i++){ dst[i*4]=src[i*3];dst[i*4+1]=src[i*3+1];dst[i*4+2]=src[i*3+2];dst[i*4+3]=255; } }
+    else if(src.length===n*4){ dst.set(src); }
+    else if(src.length===n){ for(let i=0;i<n;i++){ dst[i*4]=dst[i*4+1]=dst[i*4+2]=src[i];dst[i*4+3]=255; } }
+    ctx.putImageData(id,0,0);
+  }
+  return c.toDataURL("image/jpeg",0.82);
+}
+async function extrairFotosPagina(page){
+  const ops=await page.getOperatorList();   // força resolução dos objetos de imagem
+  const OPS=pdfjsLib.OPS, nomes=[];
+  for(let i=0;i<ops.fnArray.length;i++){
+    const fn=ops.fnArray[i];
+    if(fn===OPS.paintImageXObject || fn===OPS.paintJpegXObject || fn===OPS.paintImageXObjectRepeat){
+      const a=ops.argsArray[i]; if(a&&a[0]) nomes.push(a[0]);
+    }
+  }
+  const out=[], vistos=new Set();
+  for(const nome of nomes){
+    if(vistos.has(nome)) continue;          // mesma imagem repetida na pagina
+    vistos.add(nome);
+    let obj=null;
+    try{ obj = await esperarObjeto(page,nome); }catch(e){ obj=null; }
+    if(obj){ try{ const u=await imagemParaDataURL(obj); if(u) out.push(u); }catch(e){} }
+  }
+  return out;
+}
+/* O pdf.js resolve cada imagem de forma assincrona. A versao anterior desistia em 400 ms,
+   e por isso paginas com varias fotos entregavam so a primeira. Aqui esperamos o aviso do
+   proprio pdf.js e so desistimos depois de 12 s. */
+function esperarObjeto(page,nome,limite=12000){
+  return new Promise((res)=>{
+    let pronto=false;
+    const terminar=(o)=>{ if(!pronto){ pronto=true; clearInterval(iv); res(o||null); } };
+    try{ page.objs.get(nome,(o)=>terminar(o)); }catch(e){ /* segue no laco abaixo */ }
+    const t0=Date.now();
+    const iv=setInterval(()=>{
+      if(pronto) return;
+      try{ if(page.objs.has && page.objs.has(nome)) return terminar(page.objs.get(nome)); }catch(e){}
+      if(Date.now()-t0>limite) terminar(null);
+    },70);
+  });
+}
+/* ---- marcacoes de ponto extra ----
+   Na ficha o valor vem ANTES do rotulo ("Sim--- BIS-"). Existem dois blocos:
+   o de ponto extra misto (rotulos "BIS.." e "OREO.") e o normal ("BIS" e "OREO;").
+   Vale o bloco correspondente a resposta de "O Ponto Extra e misto?". */
+const RX_EXTRA = {
+  misto:  /(Sim|N[ãa]o)[\s\-–—]{0,10}O Ponto Extra é misto/i,
+  mBis:   /(Sim|N[ãa]o)[\s\-–—]{0,10}BIS\s*\.\s*\./i,
+  mOreo:  /(Sim|N[ãa]o)[\s\-–—]{0,10}OREO\s*\.(?!\s*\.)/i,
+  rBis:   /(Sim|N[ãa]o)[\s\-–—]{0,10}BIS(?!\s*[.X])/i,
+  rOreo:  /(Sim|N[ãa]o)[\s\-–—]{0,10}OREO\s*;/i
+};
+function marcacoesExtra(txt){
+  if(!/Ponto Extra/i.test(txt) || !/Quais os produtos/i.test(txt)) return {};
+  const pega=rx=>{ const m=rx.exec(txt); return m? semAcento(m[1])==="SIM" : null; };
+  const misto=pega(RX_EXTRA.misto);
+  const bis  = misto ? pega(RX_EXTRA.mBis)  : pega(RX_EXTRA.rBis);
+  const oreo = misto ? pega(RX_EXTRA.mOreo) : pega(RX_EXTRA.rOreo);
+  if(bis===null && oreo===null) return {};
+  return { temMarcacao:true, misto:!!misto, bis:!!bis, oreo:!!oreo };
+}
+
+async function importarPdf(arquivo){ return importarPdfBuffer(await arquivo.arrayBuffer(), arquivo.name); }
+async function importarPdfBuffer(buf, nomeArq){
+  try{
+    $("#fotoStatus").textContent="Abrindo PDF…";
+    await carregarPdfJs();
+    const pdf=await pdfjsLib.getDocument({data:buf,isEvalSupported:false,enableXfa:false}).promise;
+    const novo={};
+    let leituraAtual=null, contagem=0, seq=0;
+    /* Cada leitura vira UMA entrada. O cabecalho vem numa pagina e as fotos nas seguintes,
+       por isso as fotos sao acumuladas na leitura aberta ate aparecer o proximo cabecalho. */
+    for(let p=1;p<=pdf.numPages;p++){
+      $("#fotoStatus").textContent=`Lendo página ${p} de ${pdf.numPages}…`;
+      const page=await pdf.getPage(p);
+      const txt=(await page.getTextContent()).items.map(i=>i.str).join(" ").replace(/\s+/g," ");
+      if(/Tipo de Coleta/.test(txt)){
+        const md=/(\d{2}\/\d{2}\/\d{4})/.exec(txt);
+        // trecho entre a data e "Tipo de Coleta" contém: <tipo de coleta> <responsável>
+        const mtr=/\d{2}\/\d{2}\/\d{4}\s+(.+?)\s+Tipo de Coleta/.exec(txt);
+        let resp="";
+        if(mtr){
+          resp = mtr[1]
+            .replace(/Share\s+\w+\s*(\(com Foto\))?/i,"")
+            .replace(/Ponto Extra[^A-Za-zÀ-ú]*Campanha Loja\w*/i,"")
+            .replace(/Ponto Extra/i,"")
+            .trim();
+        }
+        const cod=(txt.match(/\b(\d{6,})\b/)||[])[1]||"";
+        const chave = semAcento(resp)+"|"+catDoTipo(txt)+"|"+(md?md[1]:"")+"|"+(cod.length>=7?cod.slice(-8):"")+"|"+(seq++);
+        leituraAtual = { prom: semAcento(resp), cat: catDoTipo(txt), data: md?md[1]:"",
+                         cod: cod.length>=7?cod.slice(-8):"", imgs:[], ...marcacoesExtra(txt) };
+        novo[chave]=leituraAtual;
+      }
+      const fotos=await extrairFotosPagina(page);
+      if(fotos.length && leituraAtual){
+        leituraAtual.imgs.push(...fotos);
+        contagem+=fotos.length;
+      }
+    }
+    for(const k in novo){ if(!novo[k].imgs.length && !novo[k].temMarcacao) delete novo[k]; }
+    FOTOS=novo;
+    $("#fotoStatus").textContent=`${contagem} fotos carregadas de ${nomeArq}.`;
+    renderGaleria();
+    mostrarAviso(`Fotos vinculadas: ${contagem} imagens. Clique no botão ▣ ao lado de cada leitura para vê-las.`,true);
+    render();
+    await pdf.destroy();
+    return true;
+  }catch(e){
+    $("#fotoStatus").textContent="Falha ao ler o PDF.";
+    mostrarAviso(e.message||"Não foi possível ler o PDF de fotos.");
+    return false;
+  }
+}
+
+/* ---------------- eventos ---------------- */
+$("#btnFilePdf").addEventListener("click",()=>$("#filePdf").click());
+$("#filePdf").addEventListener("change",e=>{ if(e.target.files[0]) importarPdf(e.target.files[0]); e.target.value=""; });
+const dropPdf=$("#dropPdf");
+["dragenter","dragover"].forEach(ev=>dropPdf.addEventListener(ev,e=>{e.preventDefault();dropPdf.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>dropPdf.addEventListener(ev,e=>{e.preventDefault();dropPdf.classList.remove("over");}));
+dropPdf.addEventListener("drop",e=>{ const f=e.dataTransfer.files[0]; if(f&&/\.pdf$/i.test(f.name)) importarPdf(f); });
+$("#mClose").addEventListener("click",fecharModal);
+$("#modal").addEventListener("click",e=>{ if(e.target===$("#modal")) fecharModal(); });
+$("#zoom").addEventListener("click",()=>$("#zoom").classList.remove("show"));
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ fecharModal(); $("#zoom").classList.remove("show"); } });
+
+$("#btnFile").addEventListener("click",()=>$("#file").click());
+$("#file").addEventListener("change",e=>{ if(e.target.files[0]) importar(e.target.files[0]); e.target.value=""; });
+const drop=$("#drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>{ const f=e.dataTransfer.files[0]; if(f) importar(f); });
+
+$("#btnExport").addEventListener("click",()=>{
+  const lojas=agruparLojas(filtrar());
+  const linhas=[];
+  lojas.forEach(o=>{
+    META.cats.forEach(c=>{
+      const est=o.parEstado[c];
+      if(!est || est==="feito") return; // exporta só o que falta cobrar
+      const janelas=(o.catsJanelas[c]||[]).map(r=>`${r.ciclo}:${r.status}`).join(" | ");
+      linhas.push([o.loja,o.cod,[...o.proms].join("/"),c,est==="perdido"?"PERDIDA (as 2 janelas)":"EM ABERTO",janelas]);
+    });
+  });
+  if(!linhas.length){ mostrarAviso("Não há categorias pendentes no filtro atual.",true); return; }
+  const head=["Loja","Codigo","Promotor","Categoria","Situacao do par","Janelas"];
+  const csv=[head,...linhas].map(l=>l.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download="pendencias_loja_perfeita.csv"; a.click(); URL.revokeObjectURL(a.href);
+});
+$("#btnLimpar").addEventListener("click",()=>{
+  $("#fEscopo").value="programa"; $("#fTipo").value=""; $("#fCiclo").value="";
+  $("#fProm").value=""; $("#fSit").value=""; $("#fBusca").value=""; render();
+});
+["fEscopo","fTipo","fCiclo","fProm","fSit"].forEach(id=>$("#"+id).addEventListener("change",render));
+$("#fBusca").addEventListener("input",render);
+
+/* ---------------- fonte de dados ao vivo (Google Sheets publicado) ----------------
+   Cole aqui o endereço CSV que o Google gera em Arquivo → Compartilhar → Publicar na web.
+   Deve terminar em /pub?output=csv (ou conter output=csv). Deixe "" para usar só o
+   arquivo embutido. Quando preenchido, o dashboard lê a planilha toda vez que abre;
+   assim, para atualizar, basta colar o novo relatório na planilha — sem trocar este HTML. */
+const PLANILHA_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5uwn7YdS6Wj_dinDu1ncTkyeq4t5kT3WV26p8AdYsRW-satu96HqMfi3u8ICep7DDZR-XecH-fEgi/pub?gid=243781488&single=true&output=csv";
+
+async function carregarDaPlanilha(){
+  if(!PLANILHA_CSV){ iniciarComEmbutido(); return; }
+  $("#fonte").textContent="Carregando dados da planilha…";
+  try{
+    const resp=await fetch(PLANILHA_CSV,{redirect:"follow"});
+    if(!resp.ok) throw new Error("HTTP "+resp.status);
+    const texto=await resp.text();
+    if(/<html/i.test(texto)) throw new Error("A planilha não está publicada como CSV.");
+    const brutos=parseCSV(texto.replace(/^\uFEFF/,""));
+    const novos=normalizar(brutos);
+    if(!novos.length) throw new Error("Planilha sem linhas válidas.");
+    DADOS=novos;
+    recalcularMeta(); montarFiltros();
+    $("#fEscopo").value="programa"; render();
+    const nl=new Set(DADOS.map(r=>r.loja)).size;
+    atualizarFonte("Planilha ao vivo",DADOS.length,nl);
+    mostrarAviso(`Dados carregados da planilha: ${DADOS.length} pesquisas, ${nl} lojas.`,true);
+  }catch(e){
+    iniciarComEmbutido();
+    mostrarAviso("Não consegui ler a planilha ("+ (e.message||"erro") +"). Mostrando os dados embutidos. Verifique se ela está publicada como CSV.");
+  }
+}
+function iniciarComEmbutido(){
+  DADOS=tirarExcluidos(DADOS);
+  aplicarPadrao(DADOS);
+  recalcularMeta(); montarFiltros();
+  atualizarFonte("Dados embutidos",DADOS.length,new Set(DADOS.map(r=>r.loja)).size);
+  render();
+}
+
+/* ---------------- fonte compartilhada publicada no Netlify ----------------
+   Quem publica usa a página enviar.html. Todos que abrem o link leem daqui.
+   Ordem de tentativa: 1) arquivo publicado  2) planilha do Google  3) dados embutidos. */
+const API_DADOS="/api/public/dados", API_FOTOS="/api/public/fotos";
+let carimboDados="", carimboFotos="";
+let sincronizando=false;
+
+function dataBr(iso){
+  try{ const d=new Date(iso);
+    return d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+  }catch(e){ return iso||""; }
+}
+
+async function tentarApiDados(silencioso){
+  const resp=await fetch(API_DADOS+"?t="+Date.now(),{cache:"no-store"});
+  if(!resp.ok) throw new Error("HTTP "+resp.status);
+  const j=await resp.json();
+  if(j.vazio) return false;
+  if(j.quando===carimboDados) return true;
+  const novos=normalizar(parseCSV(String(j.csv||"").replace(/^\uFEFF/,"")));
+  if(!novos.length) throw new Error("Relatório publicado sem linhas válidas.");
+  DADOS=novos; carimboDados=j.quando;
+  recalcularMeta(); montarFiltros();
+  if(!silencioso){ $("#fEscopo").value="programa"; }
+  render();
+  const nl=new Set(DADOS.map(r=>r.loja)).size;
+  atualizarFonte("Publicado por "+(j.quem||"equipe")+" em "+dataBr(j.quando), DADOS.length, nl);
+  mostrarAviso(silencioso
+    ? "Chegou relatório novo (publicado às "+dataBr(j.quando)+"). Painel atualizado."
+    : `Relatório publicado: ${DADOS.length} pesquisas em ${nl} lojas.`, true);
+  return true;
+}
+
+async function tentarApiFotos(silencioso){
+  const r=await fetch(API_FOTOS+"?t="+Date.now(),{cache:"no-store"});
+  if(!r.ok) return false;
+  const m=await r.json();
+  if(m.vazio || !m.partes) return false;
+  if(m.quando===carimboFotos) return true;
+  $("#fotoStatus").textContent="Baixando fotos publicadas…";
+  const partes=[];
+  for(let i=0;i<m.partes;i++){
+    const p=await fetch(API_FOTOS+"?"+new URLSearchParams({parte:String(i),versao:m.versao,t:String(Date.now())}),{cache:"no-store"});
+    if(!p.ok) throw new Error("Falha ao baixar parte "+(i+1));
+    partes.push(new Uint8Array(await p.arrayBuffer()));
+  }
+  let tam=0; partes.forEach(x=>tam+=x.length);
+  const buf=new Uint8Array(tam); let off=0;
+  partes.forEach(x=>{ buf.set(x,off); off+=x.length; });
+  const sucesso=await importarPdfBuffer(buf.buffer, m.nome||"fotos publicadas");
+  if(sucesso) carimboFotos=m.quando;
+  return sucesso;
+}
+
+async function iniciar(){
+  let ok=false;
+  try{ ok=await tentarApiDados(false); }catch(e){ ok=false; }
+  if(!ok){ await carregarDaPlanilha(); }
+  try{ await tentarApiFotos(false); }catch(e){ /* sem fotos publicadas ainda */ }
+  setInterval(async ()=>{
+    if(sincronizando || document.hidden) return;
+    sincronizando=true;
+    try{ await tentarApiDados(true); await tentarApiFotos(true); }catch(e){}
+    finally{ sincronizando=false; }
+  }, 120000);
+}
+/* ---------------- abas ---------------- */
+const ABAS={
+  painel:  {eb:"Leitura de gôndola e ponto extra", h:"Quem leu, quem não leu",
+            sub:"Uma linha por loja: o espaço em gôndola por categoria, os pontos extras e o promotor responsável por cada pendência."},
+  fotos:   {eb:"Prova de execução", h:"Fotos das leituras",
+            sub:"Cada ficha do PDF com todas as fotos que o promotor enviou. Clique em qualquer foto para ampliar."},
+  importar:{eb:"Arquivos", h:"Trocar os arquivos",
+            sub:"Prévia local, só neste aparelho. Para publicar para a equipe inteira, use Publicar o dia."}
+};
+function abrirAba(nome){
+  if(!ABAS[nome]) nome="painel";
+  document.querySelectorAll(".navitem").forEach(b=>b.classList.toggle("is-on",b.dataset.aba===nome));
+  document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("is-on",p.id==="pane-"+nome));
+  $("#ebAba").textContent=ABAS[nome].eb;
+  $("#tituloAba").textContent=ABAS[nome].h;
+  $("#subAba").textContent=ABAS[nome].sub;
+  if(nome==="fotos") renderGaleria();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll(".navitem").forEach(b=>b.addEventListener("click",()=>abrirAba(b.dataset.aba)));
+
+/* ---------------- galeria de fotos ---------------- */
+function ordemData(d){ const m=/(\d{2})\/(\d{2})\/(\d{4})/.exec(d||""); return m?m[3]+m[2]+m[1]:"0"; }
+function renderGaleria(){
+  const g=$("#galeria"); if(!g) return;
+  const codigosVisiveis=new Set(filtrar().map(r=>String(r.cod).replace(/^0+/,"")));
+  const fichas=Object.values(FOTOS).filter(f=>f.imgs&&f.imgs.length && (!recorteExterno.active || codigosVisiveis.has(String(f.cod).replace(/^0+/,""))));
+  const total=fichas.reduce((a,f)=>a+f.imgs.length,0);
+  const badge=$("#navFotos"); if(badge) badge.textContent=total||"";
+  g.innerHTML="";
+  if(!fichas.length){
+    g.innerHTML='<div class="vazio">Nenhuma foto carregada ainda.<br>Vá em <b>Importar</b> e solte o Relatório de Coletas com Fotos, ou publique o PDF em <a href="/enviar.html" target="_top">Publicar o dia</a> para todo mundo ver.</div>';
+    return;
+  }
+  fichas.sort((a,b)=> ordemData(b.data).localeCompare(ordemData(a.data))
+                   || String(a.prom).localeCompare(String(b.prom))
+                   || String(a.cat).localeCompare(String(b.cat)));
+  fichas.forEach(f=>{
+    const card=el("div","ficha");
+    const cap=el("div","fichacap");
+    const nome=el("b"); nome.textContent=padronizarNome(f.prom||"Sem responsável");
+    cap.appendChild(nome);
+    if(f.temMarcacao){
+      const marcas=[f.bis?"BIS":null,f.oreo?"OREO":null].filter(Boolean);
+      const t=el("span","fichatag "+(marcas.length?"mark":"alerta"));
+      t.textContent = marcas.length? marcas.join(" + ") : "ficha em branco";
+      t.title = marcas.length? "Famílias marcadas na ficha do ponto extra."
+                             : "Reportou ponto extra e mandou foto, mas não marcou BIS nem OREO.";
+      cap.appendChild(t);
+    }
+    const q=el("span","fichatag"); q.textContent=f.imgs.length+(f.imgs.length>1?" fotos":" foto");
+    cap.appendChild(q);
+    const meta=el("span","meta"); meta.className="meta";
+    meta.style.cssText="font-family:var(--mono);font-size:12px;color:var(--ink-3);width:100%";
+    meta.textContent=[f.cat, f.data||"sem data", f.cod?"PDV "+f.cod:null].filter(Boolean).join("  ·  ");
+    cap.appendChild(meta);
+    const grid=el("div","fichagrid");
+    f.imgs.forEach((src,i)=>{
+      const im=el("img"); im.src=src; im.loading="lazy"; im.alt=(f.cat||"foto")+" "+(i+1);
+      im.addEventListener("click",()=>{ $("#zoomImg").src=src; $("#zoom").classList.add("show"); });
+      grid.appendChild(im);
+    });
+    card.appendChild(cap); card.appendChild(grid); g.appendChild(card);
+  });
+}
+
+/* Exact operational join only. Ambiguous store names are never assigned to a city. */
+let recorteExterno={active:false,stores:[],catalog:[],label:""};
+function nomeLojaChave(value){return semAcento(String(value||"").replace(/\s+\d{5,}\s*$/,"")).replace(/[^A-Z0-9]/g,"");}
+function correspondeAoRecorte(record){
+  if(!recorteExterno.active) return true;
+  const allowed=new Set(recorteExterno.stores.map(s=>s.cnpj));
+  const cnpj=record.cnpj || (window.LOJA_PDV_CNPJ||{})[record.cod];
+  if(cnpj) return allowed.has(String(cnpj).replace(/\D/g,""));
+  const key=nomeLojaChave(record.loja);
+  const matches=new Set(recorteExterno.catalog.filter(s=>s.names.some(name=>nomeLojaChave(name)===key)).map(s=>s.cnpj).filter(Boolean));
+  return matches.size===1 && allowed.has([...matches][0]);
+}
+window.addEventListener("message",event=>{
+  if(event.origin!==location.origin || event.source!==window.parent || event.data?.type!=="ms-dashboard-scope") return;
+  recorteExterno={active:!!event.data.active,label:String(event.data.label||""),stores:Array.isArray(event.data.stores)?event.data.stores:[],catalog:Array.isArray(event.data.catalog)?event.data.catalog:[]};
+  const banner=document.querySelector("#externalScope");
+  if(banner){banner.hidden=!recorteExterno.active;banner.textContent="Recorte do painel: "+recorteExterno.label+". Ligação por CNPJ ou nome único de loja; cadastros sem correspondência não são atribuídos por aproximação.";}
+  render();renderGaleria();
+});
+if(new URLSearchParams(location.search).get("embedded")==="1") document.documentElement.classList.add("embedded");
+window.parent.postMessage({type:"loja-perfeita-ready"},location.origin);
+
+iniciar();
+abrirAba(new URLSearchParams(location.search).get("aba")||"painel");
+renderGaleria();
+</script>
+</body>
+</html>

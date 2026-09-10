@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "branch": "MCD",
+    "supplier": "MONDELEZ",
+    "updatedAt": "",
+    "scope": "MCD Mato Grosso do Sul",
+    "source": "Power BI MCD MS • exportação autorizada pendente",
+    "status": "blocked",
+    "method": "Nenhum valor da planilha ou da filial TCG é usado como substituto. O painel aguarda uma exportação MCD MS autorizada."
+  },
+  "totals": {
+    "junho": null,
+    "julho": null,
+    "agosto": null
+  },
+  "unclassified": {
+    "junho": null,
+    "julho": null,
+    "agosto": null
+  },
+  "networks": {
+    "junho": {},
+    "julho": {},
+    "agosto": {}
+  }
+}

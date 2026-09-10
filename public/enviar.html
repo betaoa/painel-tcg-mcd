@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Publicar o dia · Loja Perfeita</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+:root{--purple:#3b1668;--ink:#2a1642;--muted:#6b587f;--line:#e4d9f0;--paper:#fbf8fd;--orange:#e98b15;--green:#087d51;--red:#b9224b}
+*{box-sizing:border-box}body{margin:0;font:16px/1.55 Inter,system-ui,sans-serif;background:var(--paper);color:var(--ink)}
+header{padding:20px max(24px,calc((100vw - 980px)/2));background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px}header b{font:26px Anton,sans-serif}header a{color:#fff;font-size:14px}
+main{max-width:980px;margin:auto;padding:42px 24px 70px}.eyebrow{font:700 12px Poppins,sans-serif;letter-spacing:.12em;color:#a85400;text-transform:uppercase}h1{font:clamp(36px,6vw,58px)/1.1 Anton,sans-serif;color:var(--purple);margin:12px 0}p{color:var(--muted)}a{color:var(--purple)}
+.notice{padding:14px 18px;border:1px solid #edcfab;background:#fff6e8;border-radius:14px;font-size:14px;color:#75430a;margin:24px 0}
+label{display:block;font:600 13px Poppins,sans-serif;margin-bottom:8px}input[type=text]{width:100%;max-width:420px;padding:12px;border:1px solid var(--line);border-radius:10px;background:white;font:inherit;color:var(--ink)}
+.uploads{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:24px 0}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}.step{font:600 12px "JetBrains Mono",monospace;color:var(--muted)}h2{font:700 19px Poppins,sans-serif;color:var(--purple);margin:10px 0}.card p{font-size:14px;min-height:44px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:24px 18px;text-align:center;background:var(--paper)}.drop.over{border-color:var(--orange);background:#fff6e8}.drop strong{display:block;font-size:14px;overflow-wrap:anywhere;min-height:24px}.drop small{display:block;font-size:12px;color:var(--muted);margin-top:5px}
+button{font:600 14px Poppins,sans-serif;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:11px 17px;background:white;color:var(--purple)}.drop button{margin-top:16px}button:disabled{cursor:not-allowed;opacity:.55}button:focus-visible,a:focus-visible{outline:3px solid #a572d1;outline-offset:3px}
+.status{font-size:14px;margin-top:14px;color:var(--muted);overflow-wrap:anywhere}.status.ok{color:var(--green)}.status.erro{color:var(--red)}.atual{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;font:12px/1.7 "JetBrains Mono",monospace;color:var(--muted);overflow-wrap:anywhere}
+progress{width:100%;height:8px;accent-color:var(--purple);margin-top:15px}.publish{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:22px;border-radius:16px;background:#f0e7fa}.publish button{color:white;background:linear-gradient(110deg,#cc7000,var(--orange));border:0;font-size:16px;padding:15px 24px}.publish span{font-size:14px;color:var(--muted)}.privacy{font-size:13px;margin-top:22px}
+@media(max-width:640px){.uploads{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}main{padding:30px 18px}header{padding:18px}.card p{min-height:0}.publish button{width:100%}}
+</style>
+</head>
+<body>
+<header><b>Loja Perfeita</b><a href="/?filial=TCG&amp;pagina=program" target="_top">← Voltar ao painel</a></header>
+<main>
+<div class="eyebrow">Tarefa do dia · Triunfante MS</div><h1>Publicar o dia</h1>
+<p>Selecione o relatório de pesquisas e o PDF de fotos. Confira os arquivos e clique em publicar para atualizar o painel de toda a equipe.</p>
+<div class="notice">Esta página é pública: quem possui o endereço pode publicar. Envie somente dados operacionais e fotos autorizadas para visualização pública. O faturamento não é alterado por estes arquivos.</div>
+<label for="quem">Responsável pela publicação</label><input id="quem" type="text" maxlength="100" placeholder="Seu nome" autocomplete="name">
+<div class="uploads">
+<section class="card"><span class="step">01 / PESQUISAS</span><h2>Leituras das lojas</h2><p>Relatório exportado com tipo de coleta, ponto de venda, responsável, rótulo e status.</p>
+<div class="drop" id="dropCsv"><strong id="nameCsv">Arraste o relatório aqui</strong><small>CSV ou Excel • até 18 MB</small><input type="file" id="fileCsv" accept=".csv,.txt,.xlsx,.xls" hidden><button id="btnCsv" type="button">Escolher relatório</button></div>
+<div class="status" id="stCsv" role="status"></div><div class="atual" id="atualCsv">Consultando publicação…</div></section>
+<section class="card"><span class="step">02 / EVIDÊNCIAS</span><h2>Fotos das leituras</h2><p>Use o “Relatório de Coletas com Fotos” em PDF. As imagens são vinculadas às leituras na galeria.</p>
+<div class="drop" id="dropPdf"><strong id="namePdf">Arraste o PDF aqui</strong><small>PDF • até 120 MB • opcional</small><input type="file" id="filePdf" accept=".pdf" hidden><button id="btnPdf" type="button">Escolher PDF de fotos</button></div>
+<progress id="progressPdf" value="0" max="100" hidden aria-label="Progresso do envio das fotos"></progress><div class="status" id="stPdf" role="status"></div><div class="atual" id="atualPdf">Consultando publicação…</div></section>
+</div>
+<div class="publish"><button id="publish" type="button" disabled>Publicar arquivos selecionados</button><span>A seleção sozinha não muda o painel.<br>O envio incompleto não substitui o PDF anterior.</span></div>
+<div id="result" class="status" role="status" aria-live="polite"></div>
+<p class="privacy">Relatórios anteriores ficam preservados para recuperação. Os arquivos não alteram a base do Involves. O CSV é limitado às colunas operacionais; confira o conteúdo do PDF antes de publicar.</p>
+<a href="/loja-perfeita.html?aba=fotos">Abrir galeria de fotos →</a>
+</main>
+<script src="/loja-publicar.js" defer></script>
+</body></html>
