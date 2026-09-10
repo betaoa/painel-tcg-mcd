@@ -30,6 +30,7 @@ jobs:
     env:
       TZ: America/Cuiaba
       SYNC_SCOPE: ${{ inputs.scope || 'all' }}
+      PROBE_ONLY: ${{ inputs.scope == 'mcd' && 'true' || 'false' }}
       SHAREPOINT_USER: ${{ secrets.SHAREPOINT_USER }}
       SHAREPOINT_PASSWORD: ${{ secrets.SHAREPOINT_PASSWORD }}
       TCG_BI_USER: ${{ secrets.TCG_BI_USER }}
@@ -56,8 +57,10 @@ jobs:
       - name: Baixar, validar e atualizar fontes
         run: node scripts/daily-sync.mjs
       - name: Validar painel
+        if: env.PROBE_ONLY != 'true'
         run: npm test
       - name: Publicar somente JSONs sanitizados
+        if: env.PROBE_ONLY != 'true'
         run: |
           git config user.name "painel-tcg-mcd-bot"
           git config user.email "actions@users.noreply.github.com"
