@@ -16,6 +16,7 @@ const SHAREPOINT = {
   mcd: process.env.SHAREPOINT_MCD_URL,
   top: process.env.TOP_RETAIL_URL,
 };
+const SYNC_SCOPE = process.env.SYNC_SCOPE || "all";
 
 fs.mkdirSync(RUN, { recursive: true });
 const results = [];
@@ -149,6 +150,26 @@ async function microsoftLogin(page, user, password) {
   const stay = page.getByRole("button", { name: /yes|sim/i });
   if (await stay.isVisible({ timeout: 8000 }).catch(() => false)) await stay.click();
 }
+async function waitForPowerBiReport(page, branch) {
+  try {
+    await waitForPowerBiReport(page, branch);
+  } catch {
+    const signals = [];
+    const known = [
+      [/approve sign in request|aprovar solicitação de entrada|código de verificação/i, "MFA pendente"],
+      [/more information required|mais informações necessárias/i, "cadastro de segurança pendente"],
+      [/segurança em nível de linha|\bRLS\b/i, "sem permissão RLS"],
+      [/access denied|acesso negado|you don't have access|você não tem acesso/i, "acesso negado"],
+      [/incorrect|incorreta|não conseguimos entrar|couldn't sign you in/i, "login recusado"],
+    ];
+    for (const [pattern, label] of known) if (await page.getByText(pattern).first().isVisible({ timeout: 1000 }).catch(() => false)) signals.push(label);
+    if (await page.locator('input[type="email"], input[name="loginfmt"]').first().isVisible({ timeout: 1000 }).catch(() => false)) signals.push("ainda na tela de usuário");
+    if (await page.locator('input[type="password"]').first().isVisible({ timeout: 1000 }).catch(() => false)) signals.push("ainda na tela de senha");
+    const host = new URL(page.url()).hostname;
+    const title = (await page.title()).replace(/[\r\n]+/g, " ").slice(0, 100);
+    throw new Error(`${branch}: relatório não abriu (${signals.join(", ") || "estado não reconhecido"}; página ${host}; título ${title})`);
+  }
+}
 async function sharePointDownload(context, url, file) {
   const page = await context.newPage();
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
@@ -254,13 +275,13 @@ async function involves(context) {
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ acceptDownloads: true, locale: "pt-BR", timezoneId: "America/Cuiaba" });
 required("TCG_BI_URL", "STOCK_XLSX_URL", "SHAREPOINT_TCG_URL", "SHAREPOINT_MCD_URL", "TOP_RETAIL_URL");
-await step("Estoque Google Sheets", async () => importStock(await download(STOCK_URL, path.join(RUN, "estoque.xlsx"))));
-await step("Roteiro TCG SharePoint", async () => importRoute(await sharePointDownload(context, SHAREPOINT.tcg, path.join(RUN, "roteiro-tcg.xlsx")), "seed-data.json", "TCG"));
-await step("Roteiro MCD SharePoint", async () => importRoute(await sharePointDownload(context, SHAREPOINT.mcd, path.join(RUN, "roteiro-mcd.xlsx")), "mcd-route.json", "MCD"));
-await step("Top Varejista SharePoint", async () => importTopRetail(await sharePointDownload(context, SHAREPOINT.top, path.join(RUN, "top-varejista.xlsx"))));
-await step("Power BI TCG", () => powerBi(browser, "TCG", "TCG_BI_USER", "TCG_BI_PASSWORD", TCG_BI_URL, "seed-data.json"));
-await step("Power BI MCD", () => powerBi(browser, "MCD", "MCD_BI_USER", "MCD_BI_PASSWORD", MCD_BI_URL, "mcd-route.json"));
-await step("Involves Loja Perfeita", () => involves(context));
+if (SYNC_SCOPE === "all") await step("Estoque Google Sheets", async () => importStock(await download(STOCK_URL, path.join(RUN, "estoque.xlsx"))));
+if (SYNC_SCOPE === "all") await step("Roteiro TCG SharePoint", async () => importRoute(await sharePointDownload(context, SHAREPOINT.tcg, path.join(RUN, "roteiro-tcg.xlsx")), "seed-data.json", "TCG"));
+if (SYNC_SCOPE === "all") await step("Roteiro MCD SharePoint", async () => importRoute(await sharePointDownload(context, SHAREPOINT.mcd, path.join(RUN, "roteiro-mcd.xlsx")), "mcd-route.json", "MCD"));
+if (SYNC_SCOPE === "all") await step("Top Varejista SharePoint", async () => importTopRetail(await sharePointDownload(context, SHAREPOINT.top, path.join(RUN, "top-varejista.xlsx"))));
+if (SYNC_SCOPE === "all" || SYNC_SCOPE === "tcg") await step("Power BI TCG", () => powerBi(browser, "TCG", "TCG_BI_USER", "TCG_BI_PASSWORD", TCG_BI_URL, "seed-data.json"));
+if (SYNC_SCOPE === "all" || SYNC_SCOPE === "mcd") await step("Power BI MCD", () => powerBi(browser, "MCD", "MCD_BI_USER", "MCD_BI_PASSWORD", MCD_BI_URL, "mcd-route.json"));
+if (SYNC_SCOPE === "all") await step("Involves Loja Perfeita", () => involves(context));
 await browser.close();
 const summary = results.map((item) => `${item.ok ? "✅" : "❌"} ${item.name}: ${item.detail}`).join("\n");
 console.log(summary);
