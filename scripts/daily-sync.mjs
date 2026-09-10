@@ -152,7 +152,7 @@ async function microsoftLogin(page, user, password) {
 }
 async function waitForPowerBiReport(page, branch) {
   try {
-    await waitForPowerBiReport(page, branch);
+    await page.getByText(/Tabela Dados/i).first().waitFor({ timeout: 120000 });
   } catch {
     const signals = [];
     const known = [
