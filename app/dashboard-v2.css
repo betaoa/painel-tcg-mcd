@@ -57,7 +57,6 @@
 .v2-map-pan { position:absolute; left:14px; top:75px; z-index:3; display:flex; flex-wrap:wrap; gap:4px; max-width:180px; padding:6px; border-radius:12px; color:var(--v2-text); background:var(--v2-bg); }
 .v2-map-pan button { height:34px; width:34px; color:var(--v2-text); background:var(--v2-surface-2); border:1px solid var(--v2-border); border-radius:8px; }
 .v2-map-pan small { width:100%; padding:5px; color:var(--v2-muted); font-size:12px; }
-.v2-map-marker .negative { fill:#ff6a86; stroke:#ffe8ef; stroke-width:1; }
 .v2-map-legend i.negative { background:#ff6a86; }
 .v2-status-filters { display:flex; flex-wrap:wrap; gap:8px; padding:14px 18px; border-bottom:1px solid var(--v2-border); }
 .v2-status-filters button { display:flex; gap:10px; align-items:center; padding:9px 12px; border:1px solid var(--v2-border); border-radius:9px; color:var(--v2-muted); font-size:14px; background:var(--v2-bg); }
@@ -261,17 +260,7 @@
 .v2-map-card { min-height: 680px; }
 .v2-map-stage { position: relative; min-height: 600px; overflow: hidden; perspective: 1300px; background: radial-gradient(ellipse at 50% 54%, color-mix(in srgb, var(--v2-accent) 15%, transparent), transparent 55%); }
 .v2-map { position: absolute; inset: -5% 1% 2%; width: 98%; height: 100%; overflow: visible; transform: rotateX(23deg) rotateZ(-2.5deg); transform-origin: 50% 55%; }
-.v2-map-depth path { fill: color-mix(in srgb, var(--v2-accent) 14%, #000); stroke: color-mix(in srgb, var(--v2-accent) 24%, transparent); stroke-width: .7; transform: translate(7px, 11px); }
-.v2-map-top path { fill: color-mix(in srgb, var(--v2-surface-2) 86%, #000); stroke: color-mix(in srgb, var(--v2-accent) 39%, transparent); stroke-width: .7; cursor: default; }
-.v2-map-top path.covered { fill: color-mix(in srgb, var(--v2-accent) 12%, var(--v2-surface-2)); cursor: pointer; }
-.v2-map-top path.covered:hover,
-.v2-map-top path.selected { fill: color-mix(in srgb, var(--v2-accent) 27%, var(--v2-surface-2)); stroke: var(--v2-accent); stroke-width: 1.5; }
 .v2-map-marker { cursor: pointer; }
-.v2-map-marker .halo { fill: color-mix(in srgb, var(--v2-accent) 14%, transparent); }
-.v2-map-marker .live { fill: var(--v2-success); stroke: #d9fff0; stroke-width: 1; }
-.v2-map-marker .pending { fill: var(--v2-warning); stroke: #fff0cf; stroke-width: 1; }
-.v2-map-marker.active .live,
-.v2-map-marker.active .pending { fill: var(--v2-accent); stroke: #fff; stroke-width: 2; }
 .v2-map-marker text { fill: var(--v2-text); stroke: var(--v2-bg); stroke-width: 2.6px; paint-order: stroke fill; font-size: 8px; font-weight: 900; pointer-events: none; }
 .v2-map-controls { position:absolute; top:14px; left:14px; z-index:3; display:flex; align-items:center; gap:5px; padding:6px; border:1px solid var(--v2-border); border-radius:12px; background:color-mix(in srgb,var(--v2-bg) 88%,transparent); backdrop-filter:blur(14px); }
 .v2-map-controls button { width:34px; height:34px; display:grid; place-items:center; border:0; border-radius:8px; color:var(--v2-text); background:var(--v2-surface-2); cursor:pointer; }

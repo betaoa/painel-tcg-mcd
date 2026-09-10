@@ -267,6 +267,12 @@ function Kpi({ label, value, detail, icon: Icon, accent = false }: { label: stri
   return <article className={`v2-kpi ${accent ? "accent" : ""}`}><div className="v2-kpi-icon"><Icon size={19} /></div><div><span>{label}</span><strong>{value}</strong><small>{detail}</small></div></article>;
 }
 
+const SLAB_DEPTH = 30;
+const SLAB_STEPS = 14;
+const WALL_STEPS = 6;
+const BASE_LIFT = 6;
+const VOLUME_LIFT = 24;
+
 function TerritoryMap({ cityData, selectedCity, onSelect, branch }: { cityData: ReturnType<typeof aggregate>; selectedCity: string; onSelect: (city: string) => void; branch: Branch }) {
   const [zoom, setZoom] = useState(1);
   const [tilt, setTilt] = useState(true);
@@ -280,14 +286,23 @@ function TerritoryMap({ cityData, selectedCity, onSelect, branch }: { cityData: 
   const labelled = new Set([...covered].sort((a, b) => b.cnpjs - a.cnpjs).slice(0, 10).map(item => normalizeKey(item.name)));
   const [, , width, height] = msMap.viewBox;
   const angle = rotation * Math.PI / 180;
-  const squash = tilt ? .72 : 1;
+  const squash = tilt ? .68 : 1;
   const a = Math.cos(angle), b = Math.sin(angle) * squash, c = -Math.sin(angle), d = Math.cos(angle) * squash;
   const tx = width / 2 - a * width / 2 - c * height / 2;
   const ty = height / 2 - b * width / 2 - d * height / 2;
   const project = (x: number, y: number) => ({ x: a*x+c*y+tx, y:b*x+d*y+ty });
   const matrix = `matrix(${a} ${b} ${c} ${d} ${tx} ${ty})`;
+  // Dropping a screen-space offset into ty is the same as translate(0 offset) after the matrix, with one node less per layer.
+  const sunk = (offset: number) => `matrix(${a} ${b} ${c} ${d} ${tx} ${ty + offset})`;
   const selectedData = byCity.get(normalizeKey(selectedCity));
   const labelBoxes: Array<{x:number;y:number;w:number}> = [];
+  const liftOf = (item: ReturnType<typeof aggregate>[number] | undefined, active: boolean) => {
+    if (!tilt || !item || item.cnpjs <= 0) return 0;
+    const volume = Math.max(0, item.value > 0 ? item.value : item.cnpjs);
+    return BASE_LIFT + Math.sqrt(volume / maxVolume) * VOLUME_LIFT + (active ? 9 : 0);
+  };
+  // Painter's algorithm: the far side of the tilted plate is drawn first so raised cities occlude what sits behind them.
+  const depthSorted = [...msMap.municipalities].sort((x, y) => project(x.cx, x.cy).y - project(y.cx, y.cy).y);
   const markerShapes = [...msMap.municipalities].sort((x,y) => Number(normalizeKey(y.name) === normalizeKey(selectedCity)) - Number(normalizeKey(x.name) === normalizeKey(selectedCity)) || (byCity.get(normalizeKey(y.name))?.cnpjs || 0) - (byCity.get(normalizeKey(x.name))?.cnpjs || 0));
   const clampPan = (x: number, y: number, level = zoom) => ({ x: Math.max(-width * (level - 1) / 2, Math.min(width * (level - 1) / 2, x)), y: Math.max(-height * (level - 1) / 2, Math.min(height * (level - 1) / 2, y)) });
   const point = (x: number, y: number) => {
@@ -301,7 +316,7 @@ function TerritoryMap({ cityData, selectedCity, onSelect, branch }: { cityData: 
     setPan(zoom === 1 && center && next > 1 ? clampPan((width / 2 - center.x) * next, (height / 2 - center.y) * next, next) : clampPan(pan.x * next / zoom, pan.y * next / zoom, next));
     setZoom(next);
   };
-  return <div className="v2-map-stage">
+  return <div className={`v2-map-stage ${tilt ? "is-3d" : "is-flat"}`}>
     <svg ref={svgRef} className="v2-map" viewBox={msMap.viewBox.join(" ")} role="group" aria-label="Mapa de Mato Grosso do Sul. Selecione uma cidade com toque ou Enter." style={{ touchAction: zoom > 1 ? "none" : "pan-y", cursor: zoom > 1 ? "grab" : "default" }}
       onPointerDown={event => {
         const p = point(event.clientX, event.clientY);
@@ -320,14 +335,49 @@ function TerritoryMap({ cityData, selectedCity, onSelect, branch }: { cityData: 
         if (current?.city && !current.moved) onSelect(current.city);
       }}
       onPointerCancel={() => { drag.current = null; }}>
+      <defs>
+        <g id="v3-ms-outline">{msMap.municipalities.map(shape => <path key={shape.id} d={shape.path} />)}</g>
+        <linearGradient id="v3-face-idle" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={width * .55} y2={height}>
+          <stop offset="0" stopColor="var(--v3-face-idle-a)" /><stop offset="1" stopColor="var(--v3-face-idle-b)" />
+        </linearGradient>
+        <linearGradient id="v3-face-live" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={width * .55} y2={height}>
+          <stop offset="0" stopColor="var(--v3-face-live-a)" /><stop offset="1" stopColor="var(--v3-face-live-b)" />
+        </linearGradient>
+        <linearGradient id="v3-face-active" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={width * .55} y2={height}>
+          <stop offset="0" stopColor="var(--v3-face-active-a)" /><stop offset="1" stopColor="var(--v3-face-active-b)" />
+        </linearGradient>
+        {(["live", "pending", "negative"] as const).map(status => (
+          <radialGradient key={status} id={`v3-bead-${status}`} cx="34%" cy="28%" r="78%">
+            <stop offset="0" stopColor="#ffffff" stopOpacity=".9" />
+            <stop offset=".38" stopColor={`var(--v3-bead-${status})`} />
+            <stop offset="1" stopColor={`var(--v3-bead-${status}-deep)`} />
+          </radialGradient>
+        ))}
+        <filter id="v3-ground" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur stdDeviation="9" />
+        </filter>
+      </defs>
       <g transform={`translate(${width / 2 + pan.x} ${height / 2 + pan.y}) scale(${zoom}) translate(${-width / 2} ${-height / 2})`}>
-        {tilt && [22, 15, 8].map(depth => <g key={depth} transform={`translate(0 ${depth})`} className="v3-depth" aria-hidden="true"><g transform={matrix}>{msMap.municipalities.map(shape => <path key={shape.id} d={shape.path} />)}</g></g>)}
-        <g className="v2-map-top" transform={matrix}>{msMap.municipalities.map(shape => {
+        {tilt && <use href="#v3-ms-outline" className="v3-ground" transform={sunk(SLAB_DEPTH + 16)} filter="url(#v3-ground)" aria-hidden="true" />}
+        {tilt && Array.from({ length: SLAB_STEPS }, (_, index) => {
+          const ratio = index / (SLAB_STEPS - 1);
+          return <use key={index} href="#v3-ms-outline" className="v3-slab" aria-hidden="true"
+            transform={sunk(SLAB_DEPTH * (1 - ratio))} style={{ fill: `color-mix(in srgb, var(--v3-slab-top) ${Math.round(ratio * 100)}%, var(--v3-slab-deep))` }} />;
+        })}
+        <g className="v2-map-top">{depthSorted.map(shape => {
           const item = byCity.get(normalizeKey(shape.name)), active = normalizeKey(selectedCity) === normalizeKey(shape.name);
-          return <path key={shape.id} d={shape.path} data-city={item?.name} role={item ? "button" : undefined} tabIndex={item ? 0 : undefined} aria-label={item ? `${item.name}, ${item.cnpjs} lojas` : undefined} aria-pressed={item ? active : undefined}
-            className={`${item ? "covered" : ""} ${active ? "selected" : ""}`} onKeyDown={event => { if (item && ["Enter", " "].includes(event.key)) { event.preventDefault(); onSelect(item.name); } }}>
-            <title>{item ? `${item.name}: ${item.cnpjs} CNPJs` : `${shape.name}: sem roteiro`}</title>
-          </path>;
+          const lift = liftOf(item, active);
+          return <g key={shape.id} className={`v3-city ${item ? "covered" : ""} ${active ? "selected" : ""}`} style={lift ? { transform: `translateY(${-lift}px)` } : undefined}>
+            {lift > 0 && Array.from({ length: WALL_STEPS }, (_, index) => {
+              const ratio = index / (WALL_STEPS - 1);
+              return <path key={index} className="v3-city-wall" aria-hidden="true" d={shape.path} transform={sunk(lift * ratio)}
+                style={{ fill: `color-mix(in srgb, var(--v3-wall-top) ${Math.round((1 - ratio) * 100)}%, var(--v3-wall-deep))` }} />;
+            })}
+            <path className="v3-city-face" d={shape.path} transform={matrix} data-city={item?.name} role={item ? "button" : undefined} tabIndex={item ? 0 : undefined} aria-label={item ? `${item.name}, ${item.cnpjs} lojas` : undefined} aria-pressed={item ? active : undefined}
+              onKeyDown={event => { if (item && ["Enter", " "].includes(event.key)) { event.preventDefault(); onSelect(item.name); } }}>
+              <title>{item ? `${item.name}: ${item.cnpjs} CNPJs` : `${shape.name}: sem roteiro`}</title>
+            </path>
+          </g>;
         })}</g>
         <g className="v2-map-markers">{markerShapes.map(shape => {
           const item = byCity.get(normalizeKey(shape.name));
@@ -336,17 +386,20 @@ function TerritoryMap({ cityData, selectedCity, onSelect, branch }: { cityData: 
           const active = normalizeKey(selectedCity) === normalizeKey(item.name);
           const status = item.value < 0 ? "negative" : item.value > 0 ? "live" : "pending";
           const p = project(shape.cx, shape.cy);
-          const mast = tilt ? (active ? 34 : 18) / Math.sqrt(zoom) : 0;
+          const lift = liftOf(item, active);
+          const mast = tilt ? (active ? 26 : 14) / Math.sqrt(zoom) : 0;
+          const top = p.y - lift - mast;
           const fontSize = 13 / Math.sqrt(zoom), labelWidth = item.name.length * fontSize * .57;
-          const label = {x:p.x + radius + 6, y:p.y - mast - radius - 3, w:labelWidth};
+          const label = {x:p.x + radius + 6, y:top - radius - 4, w:labelWidth};
           const showLabel = (active || zoom >= 1.75 || labelled.has(normalizeKey(item.name))) && !labelBoxes.some(box => Math.abs(box.y-label.y) < fontSize*1.5 && box.x < label.x+label.w && label.x < box.x+box.w);
           if (showLabel) labelBoxes.push(label);
           return <g key={shape.id} data-city={item.name} className={`v2-map-marker ${active ? "active" : ""}`}>
             <title>{item.name}: {item.cnpjs} CNPJs</title>
-            <circle cx={p.x} cy={p.y} r={radius + 5} className="halo" />
-            {tilt && <line x1={p.x} y1={p.y} x2={p.x} y2={p.y-mast} className="v3-pin-stem" />}
-            <circle cx={p.x} cy={p.y-mast} r={radius+8/zoom} fill="transparent" />
-            <circle cx={p.x} cy={p.y-mast} r={radius} className={status} />
+            <ellipse cx={p.x} cy={p.y - lift} rx={radius * 1.25} ry={radius * 1.25 * squash} className="halo" />
+            {tilt && <line x1={p.x} y1={p.y - lift} x2={p.x} y2={top} className="v3-pin-stem" />}
+            <circle cx={p.x} cy={top} r={radius + 8 / zoom} fill="transparent" />
+            <circle cx={p.x} cy={top} r={radius} className={`v3-bead ${status}`} fill={`url(#v3-bead-${status})`} />
+            {active && <circle cx={p.x} cy={top} r={radius + 4 / Math.sqrt(zoom)} className="v3-bead-ring" />}
             {showLabel && <text x={label.x} y={label.y} style={{ fontSize }}>{item.name}</text>}
           </g>;
         })}</g>
@@ -362,7 +415,7 @@ function TerritoryMap({ cityData, selectedCity, onSelect, branch }: { cityData: 
       <button onClick={() => setRotation(value => value + 15)} aria-label="Girar mapa à direita">↷</button>
     </div>
     {zoom > 1 && <div className="v2-map-pan" aria-label="Mover mapa"><button aria-label="Mover para a esquerda" onClick={() => setPan(clampPan(pan.x + 70, pan.y))}>←</button><button aria-label="Mover para cima" onClick={() => setPan(clampPan(pan.x, pan.y + 70))}>↑</button><button aria-label="Mover para baixo" onClick={() => setPan(clampPan(pan.x, pan.y - 70))}>↓</button><button aria-label="Mover para a direita" onClick={() => setPan(clampPan(pan.x - 70, pan.y))}>→</button><small>Arraste para explorar</small></div>}
-    <div className="v2-map-legend"><span><i className="live" /> saldo positivo</span><span><i className="negative" /> saldo negativo</span><span><i className="pending" /> sem valor disponível</span><b>{covered.length} cidades</b></div>
+    <div className="v2-map-legend"><span><i className="live" /> saldo positivo</span><span><i className="negative" /> saldo negativo</span><span><i className="pending" /> sem valor disponível</span>{tilt && <span className="v3-legend-height"><i className="height" /> altura = volume</span>}<b>{covered.length} cidades</b></div>
     <div className="v2-map-badge">{branch} • MS</div>
     <div className="v3-territory-caption"><span>{selectedData ? "CIDADE SELECIONADA" : "MATO GROSSO DO SUL"}</span><strong>{selectedData?.name || "79 municípios. Um território."}</strong><p>{selectedData ? `${selectedData.cnpjs} lojas · ${selectedData.promoters} promotores · ${selectedData.visits} visitas/semana` : "Selecione um município para acompanhar sua operação em todas as páginas."}</p></div>
   </div>;
