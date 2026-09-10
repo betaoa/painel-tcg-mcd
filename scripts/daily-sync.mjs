@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import * as XLSX from "xlsx";
+import XLSX from "xlsx";
 import { chromium } from "playwright";
 
 const ROOT = process.cwd();
@@ -64,8 +64,14 @@ function bestSheet(file, requiredGroups) {
   return candidates[0]?.rows || [];
 }
 async function step(name, fn) {
-  try { results.push({ name, ok: true, detail: await fn() }); }
-  catch (error) { results.push({ name, ok: false, detail: error.message }); }
+  try {
+    const detail = await fn();
+    results.push({ name, ok: true, detail });
+    console.log(`✅ ${name}: ${detail}`);
+  } catch (error) {
+    results.push({ name, ok: false, detail: error.message });
+    console.log(`❌ ${name}: ${error.message}`);
+  }
 }
 async function download(url, file) {
   const response = await fetch(url, { redirect: "follow" });
@@ -150,9 +156,16 @@ async function sharePointDownload(context, url, file) {
     required("SHAREPOINT_USER", "SHAREPOINT_PASSWORD");
     await microsoftLogin(page, process.env.SHAREPOINT_USER, process.env.SHAREPOINT_PASSWORD);
   }
-  const pending = page.waitForEvent("download", { timeout: 60000 });
-  await page.goto(`${url}${url.includes("?") ? "&" : "?"}download=1`, { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => {});
-  const item = await pending; await item.saveAs(file); await page.close(); return file;
+  const direct = new URL(url);
+  direct.searchParams.set("action", "download");
+  direct.searchParams.set("download", "1");
+  const response = await context.request.get(direct.toString(), { timeout: 60000 });
+  if (!response.ok()) throw new Error(`download HTTP ${response.status()}`);
+  const body = await response.body();
+  if (body.length < 1024 || body[0] !== 0x50 || body[1] !== 0x4b) throw new Error("SharePoint não devolveu um arquivo Excel");
+  fs.writeFileSync(file, body);
+  await page.close();
+  return file;
 }
 
 function previousThreeMonths() {
@@ -160,7 +173,7 @@ function previousThreeMonths() {
   return [3, 2, 1].map((back) => { const d = new Date(now.getFullYear(), now.getMonth() - back, 1); return { label: labels[d.getMonth()], month: d.getMonth() + 1, year: d.getFullYear() }; });
 }
 async function clickText(page, pattern) {
-  const target = page.getByText(pattern, { exact: false }).first(); await target.waitFor({ timeout: 30000 }); await target.click();
+  const target = page.getByText(pattern, { exact: false }).first(); await target.waitFor({ timeout: 30000 }); await target.click({ force: true });
 }
 async function selectSlicer(page, title, value) {
   const visual = page.locator('[class*="visual-container"]').filter({ hasText: new RegExp(title, "i") }).first();
@@ -170,7 +183,8 @@ async function selectSlicer(page, title, value) {
   await page.waitForTimeout(2500);
 }
 async function exportPowerBiTable(page, target) {
-  const visual = page.locator('[class*="visual-container"]').filter({ hasText: /Tabela Dados/i }).first();
+  const visual = page.locator('[class*="visual-container"]').filter({ hasText: /CNPJ/i }).filter({ hasText: /FATUR|VALOR/i }).first();
+  await visual.waitFor({ timeout: 60000 });
   await visual.hover(); await visual.getByRole("button", { name: /more options|mais opções/i }).click();
   await clickText(page, /export data|exportar dados/i);
   const pending = page.waitForEvent("download", { timeout: 60000 });
@@ -191,20 +205,27 @@ function parseRevenue(files, routeFile, branch) {
   atomic(branch === "TCG" ? "power-bi-revenue.json" : "mcd-power-bi-revenue.json", out);
   return `${Object.values(out.cnpjs).reduce((n, group) => n + Object.keys(group).length, 0)} vínculos CNPJ/mês`;
 }
-async function powerBi(context, branch, user, password, url, routeFile) {
+async function powerBi(browser, branch, user, password, url, routeFile) {
   required(user, password);
-  const page = await context.newPage(); await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-  if (await page.locator('input[type="email"]').isVisible({ timeout: 15000 }).catch(() => false)) await microsoftLogin(page, process.env[user], process.env[password]);
-  if (branch === "MCD" && !process.env.MCD_BI_URL) await clickText(page, /BI MCD MS/i);
-  await page.getByText(/Tabela Dados/i).first().waitFor({ timeout: 90000 });
-  const exports = [];
-  for (const period of previousThreeMonths()) {
-    await selectSlicer(page, "Mês", period.label); await selectSlicer(page, "Ano", period.year); await selectSlicer(page, "Filial", branch);
-    await selectSlicer(page, "Fornecedor", "MONDELEZ").catch(() => selectSlicer(page, "razao_for", "MONDELEZ"));
-    const file = path.join(RUN, `${branch}-${period.year}-${String(period.month).padStart(2, "0")}.xlsx`);
-    await exportPowerBiTable(page, file); exports.push({ file, period });
+  const isolated = await browser.newContext({ acceptDownloads: true, locale: "pt-BR", timezoneId: "America/Cuiaba" });
+  try {
+    const page = await isolated.newPage();
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    if (await page.locator('input[type="email"]').isVisible({ timeout: 30000 }).catch(() => false)) await microsoftLogin(page, process.env[user], process.env[password]);
+    if (branch === "MCD" && !process.env.MCD_BI_URL) await clickText(page, /BI MCD MS/i);
+    await page.getByText(/Tabela Dados/i).first().waitFor({ timeout: 120000 });
+    if (await page.getByText(/segurança em nível de linha|\bRLS\b/i).isVisible({ timeout: 5000 }).catch(() => false)) throw new Error(`a conta ${branch} abriu o relatório sem permissão RLS`);
+    const exports = [];
+    for (const period of previousThreeMonths()) {
+      await selectSlicer(page, "Mês", period.label); await selectSlicer(page, "Ano", period.year); await selectSlicer(page, "Filial", branch);
+      await selectSlicer(page, "Fornecedor", "MONDELEZ").catch(() => selectSlicer(page, "razao_for", "MONDELEZ"));
+      const file = path.join(RUN, `${branch}-${period.year}-${String(period.month).padStart(2, "0")}.xlsx`);
+      await exportPowerBiTable(page, file); exports.push({ file, period });
+    }
+    return parseRevenue(exports, routeFile, branch);
+  } finally {
+    await isolated.close();
   }
-  await page.close(); return parseRevenue(exports, routeFile, branch);
 }
 
 async function involves(context) {
@@ -237,8 +258,8 @@ await step("Estoque Google Sheets", async () => importStock(await download(STOCK
 await step("Roteiro TCG SharePoint", async () => importRoute(await sharePointDownload(context, SHAREPOINT.tcg, path.join(RUN, "roteiro-tcg.xlsx")), "seed-data.json", "TCG"));
 await step("Roteiro MCD SharePoint", async () => importRoute(await sharePointDownload(context, SHAREPOINT.mcd, path.join(RUN, "roteiro-mcd.xlsx")), "mcd-route.json", "MCD"));
 await step("Top Varejista SharePoint", async () => importTopRetail(await sharePointDownload(context, SHAREPOINT.top, path.join(RUN, "top-varejista.xlsx"))));
-await step("Power BI TCG", () => powerBi(context, "TCG", "TCG_BI_USER", "TCG_BI_PASSWORD", TCG_BI_URL, "seed-data.json"));
-await step("Power BI MCD", () => powerBi(context, "MCD", "MCD_BI_USER", "MCD_BI_PASSWORD", MCD_BI_URL, "mcd-route.json"));
+await step("Power BI TCG", () => powerBi(browser, "TCG", "TCG_BI_USER", "TCG_BI_PASSWORD", TCG_BI_URL, "seed-data.json"));
+await step("Power BI MCD", () => powerBi(browser, "MCD", "MCD_BI_USER", "MCD_BI_PASSWORD", MCD_BI_URL, "mcd-route.json"));
 await step("Involves Loja Perfeita", () => involves(context));
 await browser.close();
 const summary = results.map((item) => `${item.ok ? "✅" : "❌"} ${item.name}: ${item.detail}`).join("\n");
