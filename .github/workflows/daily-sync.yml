@@ -1,0 +1,59 @@
+name: Atualizacao diaria do painel
+
+on:
+  schedule:
+    # GitHub usa UTC. 06:00 UTC = 02:00 em Cuiaba (UTC-4).
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-panel-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      TZ: America/Cuiaba
+      SHAREPOINT_USER: ${{ secrets.SHAREPOINT_USER }}
+      SHAREPOINT_PASSWORD: ${{ secrets.SHAREPOINT_PASSWORD }}
+      TCG_BI_USER: ${{ secrets.TCG_BI_USER }}
+      TCG_BI_PASSWORD: ${{ secrets.TCG_BI_PASSWORD }}
+      MCD_BI_USER: ${{ secrets.MCD_BI_USER }}
+      MCD_BI_PASSWORD: ${{ secrets.MCD_BI_PASSWORD }}
+      INVOLVES_USER: ${{ secrets.INVOLVES_USER }}
+      INVOLVES_PASSWORD: ${{ secrets.INVOLVES_PASSWORD }}
+      TCG_BI_URL: ${{ secrets.TCG_BI_URL }}
+      MCD_BI_URL: ${{ secrets.MCD_BI_URL }}
+      STOCK_XLSX_URL: ${{ secrets.STOCK_XLSX_URL }}
+      SHAREPOINT_TCG_URL: ${{ secrets.SHAREPOINT_TCG_URL }}
+      SHAREPOINT_MCD_URL: ${{ secrets.SHAREPOINT_MCD_URL }}
+      TOP_RETAIL_URL: ${{ secrets.TOP_RETAIL_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save --no-package-lock playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Baixar, validar e atualizar fontes
+        run: node scripts/daily-sync.mjs
+      - name: Validar painel
+        run: npm test
+      - name: Publicar somente JSONs sanitizados
+        run: |
+          git config user.name "painel-tcg-mcd-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add app/data/seed-data.json app/data/mcd-route.json app/data/top-varejista.json app/data/stock-control.json app/data/power-bi-revenue.json app/data/mcd-power-bi-revenue.json app/data/loja-perfeita-daily.json
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteracao validada."
+            exit 0
+          fi
+          git commit -m "Atualiza fontes diarias do painel"
+          git push
