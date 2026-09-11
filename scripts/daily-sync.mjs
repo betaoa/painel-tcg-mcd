@@ -147,8 +147,16 @@ async function microsoftLogin(page, user, password) {
   await page.locator('input[type="password"]').waitFor({ timeout: 30000 });
   await page.locator('input[type="password"]').fill(password);
   await page.locator("#idSIButton9").or(page.getByRole("button", { name: /sign in|entrar|conectar/i })).first().click();
-  const stay = page.getByRole("button", { name: /yes|sim/i });
-  if (await stay.isVisible({ timeout: 8000 }).catch(() => false)) await stay.click();
+  await page.waitForTimeout(5000);
+  const authError = page.locator('#passwordError, #usernameError, [role="alert"]').filter({ hasText: /\S/ }).first();
+  if (await authError.isVisible().catch(() => false)) {
+    const raw = await authError.innerText().catch(() => "erro de autenticação");
+    const safe = raw.replaceAll(user, "[conta]").replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[conta]").replace(/\s+/g, " ").trim();
+    if (safe) throw new Error(`Microsoft recusou o login: ${safe.slice(0, 180)}`);
+  }
+  const stay = page.getByRole("button", { name: /yes|sim|continuar conectado|stay signed in/i }).first();
+  await stay.waitFor({ state: "visible", timeout: 12000 }).catch(() => {});
+  if (await stay.isVisible().catch(() => false)) await stay.click();
 }
 async function waitForPowerBiReport(page, branch) {
   try {
