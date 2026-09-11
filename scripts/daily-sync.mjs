@@ -146,8 +146,9 @@ async function microsoftLogin(page, user, password) {
   await page.locator("#idSIButton9").or(page.getByRole("button", { name: /next|avançar|próximo|continuar/i })).first().click();
   const passwordField = page.locator('input[type="password"]').first();
   await passwordField.waitFor({ state: "visible", timeout: 30000 });
-  await passwordField.fill(password);
-  if (!(await passwordField.inputValue())) throw new Error("o campo de senha da Microsoft rejeitou o preenchimento");
+  await passwordField.click();
+  await passwordField.pressSequentially(password, { delay: 35 });
+  if (!(await passwordField.inputValue())) throw new Error("o campo de senha da Microsoft rejeitou a digitação");
   await passwordField.press("Enter");
   await page.waitForTimeout(5000);
   const authError = page.locator('#passwordError, #usernameError, [role="alert"]').filter({ hasText: /\S/ }).first();
