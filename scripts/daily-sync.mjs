@@ -163,7 +163,8 @@ async function waitForPowerBiReport(page, branch) {
       [/incorrect|incorreta|não conseguimos entrar|couldn't sign you in/i, "login recusado"],
     ];
     for (const [pattern, label] of known) if (await page.getByText(pattern).first().isVisible({ timeout: 1000 }).catch(() => false)) signals.push(label);
-    if (await page.locator('input[type="email"], input[name="loginfmt"]').first().isVisible({ timeout: 1000 }).catch(() => false)) signals.push("ainda na tela de usuário");
+    if (await page.locator('#email, input[placeholder*="email" i]').first().isVisible().catch(() => false)) signals.push("ainda no primeiro email do Power BI");
+    if (await page.locator('input[type="email"], input[name="loginfmt"]').first().isVisible().catch(() => false)) signals.push("ainda na tela de usuário");
     if (await page.locator('input[type="password"]').first().isVisible({ timeout: 1000 }).catch(() => false)) signals.push("ainda na tela de senha");
     const host = new URL(page.url()).hostname;
     const title = (await page.title()).replace(/[\r\n]+/g, " ").slice(0, 100);
@@ -234,14 +235,17 @@ async function powerBi(browser, branch, user, password, url, routeFile) {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     const email = page.locator('input[type="email"], input[name="loginfmt"]').first();
     const powerBiEmail = page.locator('#email, input[placeholder*="email" i]').first();
-    if (await powerBiEmail.isVisible({ timeout: 10000 }).catch(() => false)) {
+    await powerBiEmail.or(email).waitFor({ state: "visible", timeout: 30000 }).catch(() => {});
+    if (await powerBiEmail.isVisible().catch(() => false)) {
       await powerBiEmail.fill(process.env[user]);
-      await page.locator('#submitBtn, button[type="submit"]').filter({ hasText: /Enviar|Submit/i }).first().click();
-    } else if (!(await email.isVisible({ timeout: 5000 }).catch(() => false))) {
+      await page.getByRole("button", { name: /Enviar|Submit/i }).first().click();
+      await email.waitFor({ state: "visible", timeout: 45000 }).catch(() => {});
+    } else if (!(await email.isVisible().catch(() => false))) {
       const signIn = page.getByRole('link', { name: /^Entrar$|^Sign in$/i }).or(page.getByRole('button', { name: /^Entrar$|^Sign in$/i })).first();
-      if (await signIn.isVisible({ timeout: 10000 }).catch(() => false)) await signIn.click();
+      if (await signIn.isVisible().catch(() => false)) await signIn.click();
+      await email.waitFor({ state: "visible", timeout: 45000 }).catch(() => {});
     }
-    if (await email.isVisible({ timeout: 30000 }).catch(() => false)) {
+    if (await email.isVisible().catch(() => false)) {
       await microsoftLogin(page, process.env[user], process.env[password]);
     }
     if (branch === "MCD" && !process.env.MCD_BI_URL) await clickText(page, /BI MCD MS/i);
