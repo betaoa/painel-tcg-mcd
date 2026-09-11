@@ -233,8 +233,12 @@ async function powerBi(browser, branch, user, password, url, routeFile) {
     const page = await isolated.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     const email = page.locator('input[type="email"], input[name="loginfmt"]').first();
-    if (!(await email.isVisible({ timeout: 5000 }).catch(() => false))) {
-      const signIn = page.getByText(/^Entrar$|^Sign in$/i).first();
+    const powerBiEmail = page.locator('#email, input[placeholder*="email" i]').first();
+    if (await powerBiEmail.isVisible({ timeout: 10000 }).catch(() => false)) {
+      await powerBiEmail.fill(process.env[user]);
+      await page.locator('#submitBtn, button[type="submit"]').filter({ hasText: /Enviar|Submit/i }).first().click();
+    } else if (!(await email.isVisible({ timeout: 5000 }).catch(() => false))) {
+      const signIn = page.getByRole('link', { name: /^Entrar$|^Sign in$/i }).or(page.getByRole('button', { name: /^Entrar$|^Sign in$/i })).first();
       if (await signIn.isVisible({ timeout: 10000 }).catch(() => false)) await signIn.click();
     }
     if (await email.isVisible({ timeout: 30000 }).catch(() => false)) {
