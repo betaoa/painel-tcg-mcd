@@ -141,8 +141,8 @@ function importTopRetail(file) {
 }
 
 async function microsoftLogin(page, user, password) {
-  await page.locator('input[type="email"]').waitFor({ timeout: 45000 });
-  await page.locator('input[type="email"]').fill(user);
+  await page.locator('input[type="email"], input[name="loginfmt"]').waitFor({ timeout: 45000 });
+  await page.locator('input[type="email"], input[name="loginfmt"]').fill(user);
   await page.getByRole("button", { name: /next|avançar/i }).click();
   await page.locator('input[type="password"]').waitFor({ timeout: 30000 });
   await page.locator('input[type="password"]').fill(password);
