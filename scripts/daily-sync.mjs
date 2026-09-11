@@ -144,9 +144,11 @@ async function microsoftLogin(page, user, password) {
   await page.locator('input[type="email"], input[name="loginfmt"]').waitFor({ timeout: 45000 });
   await page.locator('input[type="email"], input[name="loginfmt"]').fill(user);
   await page.locator("#idSIButton9").or(page.getByRole("button", { name: /next|avançar|próximo|continuar/i })).first().click();
-  await page.locator('input[type="password"]').waitFor({ timeout: 30000 });
-  await page.locator('input[type="password"]').fill(password);
-  await page.locator("#idSIButton9").or(page.getByRole("button", { name: /sign in|entrar|conectar/i })).first().click();
+  const passwordField = page.locator('input[type="password"]').first();
+  await passwordField.waitFor({ state: "visible", timeout: 30000 });
+  await passwordField.fill(password);
+  if (!(await passwordField.inputValue())) throw new Error("o campo de senha da Microsoft rejeitou o preenchimento");
+  await passwordField.press("Enter");
   await page.waitForTimeout(5000);
   const authError = page.locator('#passwordError, #usernameError, [role="alert"]').filter({ hasText: /\S/ }).first();
   if (await authError.isVisible().catch(() => false)) {
