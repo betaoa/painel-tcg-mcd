@@ -143,10 +143,10 @@ function importTopRetail(file) {
 async function microsoftLogin(page, user, password) {
   await page.locator('input[type="email"], input[name="loginfmt"]').waitFor({ timeout: 45000 });
   await page.locator('input[type="email"], input[name="loginfmt"]').fill(user);
-  await page.getByRole("button", { name: /next|avançar/i }).click();
+  await page.locator("#idSIButton9").or(page.getByRole("button", { name: /next|avançar|próximo|continuar/i })).first().click();
   await page.locator('input[type="password"]').waitFor({ timeout: 30000 });
   await page.locator('input[type="password"]').fill(password);
-  await page.getByRole("button", { name: /sign in|entrar/i }).click();
+  await page.locator("#idSIButton9").or(page.getByRole("button", { name: /sign in|entrar|conectar/i })).first().click();
   const stay = page.getByRole("button", { name: /yes|sim/i });
   if (await stay.isVisible({ timeout: 8000 }).catch(() => false)) await stay.click();
 }
