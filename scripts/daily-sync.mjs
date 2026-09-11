@@ -232,7 +232,14 @@ async function powerBi(browser, branch, user, password, url, routeFile) {
   try {
     const page = await isolated.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-    if (await page.locator('input[type="email"]').isVisible({ timeout: 30000 }).catch(() => false)) await microsoftLogin(page, process.env[user], process.env[password]);
+    const email = page.locator('input[type="email"], input[name="loginfmt"]').first();
+    if (!(await email.isVisible({ timeout: 5000 }).catch(() => false))) {
+      const signIn = page.getByText(/^Entrar$|^Sign in$/i).first();
+      if (await signIn.isVisible({ timeout: 10000 }).catch(() => false)) await signIn.click();
+    }
+    if (await email.isVisible({ timeout: 30000 }).catch(() => false)) {
+      await microsoftLogin(page, process.env[user], process.env[password]);
+    }
     if (branch === "MCD" && !process.env.MCD_BI_URL) await clickText(page, /BI MCD MS/i);
     await waitForPowerBiReport(page, branch);
     if (await page.getByText(/segurança em nível de linha|\bRLS\b/i).isVisible({ timeout: 5000 }).catch(() => false)) throw new Error(`a conta ${branch} abriu o relatório sem permissão RLS`);
